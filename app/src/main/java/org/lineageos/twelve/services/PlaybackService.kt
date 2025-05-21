@@ -420,16 +420,6 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
                 )
             )
             .setSkipSilenceEnabled(sharedPreferences.skipSilence)
-            .setLoadControl(
-                DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(
-                        DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
-                        DefaultLoadControl.DEFAULT_MAX_BUFFER_MS,
-                        1000,
-                        2000
-                    )
-                    .build()
-            )
             .setWakeMode(C.WAKE_MODE_NETWORK)
             .experimentalSetDynamicSchedulingEnabled(true)
             .build()
