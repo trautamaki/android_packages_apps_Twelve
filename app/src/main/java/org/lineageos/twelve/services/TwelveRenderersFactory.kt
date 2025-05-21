@@ -20,6 +20,7 @@ class TwelveRenderersFactory(
     init {
         setEnableAudioFloatOutput(enableAudioFloatOutput)
         setEnableAudioTrackPlaybackParams(true)
+        setExtensionRendererMode(EXTENSION_RENDERER_MODE_ON)
     }
 
     override fun buildAudioSink(
