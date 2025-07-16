@@ -5,10 +5,12 @@
 
 package org.lineageos.twelve.fragments
 
+import android.animation.ValueAnimator
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -26,6 +28,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -38,6 +41,7 @@ import org.lineageos.twelve.ext.navigateSafe
 import org.lineageos.twelve.ext.setProgressCompat
 import org.lineageos.twelve.ext.updatePadding
 import org.lineageos.twelve.models.Album
+import org.lineageos.twelve.models.Audio
 import org.lineageos.twelve.models.Error
 import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.Playlist
@@ -69,6 +73,9 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
     private val linearProgressIndicator by getViewProperty<LinearProgressIndicator>(R.id.linearProgressIndicator)
     private val nestedScrollView by getViewProperty<NestedScrollView>(R.id.nestedScrollView)
     private val noElementsNestedScrollView by getViewProperty<NestedScrollView>(R.id.noElementsNestedScrollView)
+    private val playArtistTracksExtendedFloatingActionButton by getViewProperty<ExtendedFloatingActionButton>(
+        R.id.playArtistTracksExtendedFloatingActionButton
+    )
     private val thumbnailImageView by getViewProperty<ImageView>(R.id.thumbnailImageView)
     private val toolbar by getViewProperty<MaterialToolbar>(R.id.toolbar)
 
@@ -136,6 +143,8 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
         this, PermissionsUtils.mainPermissions
     )
 
+    private var nowPlayingBarLayoutListener: View.OnLayoutChangeListener? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -187,6 +196,49 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
             windowInsets
         }
 
+        playArtistTracksExtendedFloatingActionButton.setOnClickListener {
+            lifecycleScope.launch {
+                viewModel.artistTracks.collectLatest { requestStatus ->
+                    if (requestStatus is FlowResult.Success) {
+                        val tracks = requestStatus.data.items.filterIsInstance<Audio>()
+                        viewModel.playAudio(tracks.shuffled(), 0)
+                    }
+                }
+            }
+        }
+
+        // Adjust FAB bottom margin to be above the NowPlayingBar
+        val nowPlayingBar = requireActivity().findViewById<View>(R.id.nowPlayingBar)
+        val fabMarginBottom = resources.getDimensionPixelSize(R.dimen.fab_margin_bottom)
+
+        nowPlayingBarLayoutListener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+            val fab = playArtistTracksExtendedFloatingActionButton
+            val params = fab.layoutParams as CoordinatorLayout.LayoutParams
+            val targetMargin = if (v.isVisible) v.height + fabMarginBottom else fabMarginBottom
+
+            ValueAnimator.ofInt(params.bottomMargin, targetMargin).apply {
+                duration = 200
+                interpolator = DecelerateInterpolator()
+                addUpdateListener {
+                    params.bottomMargin = it.animatedValue as Int
+                    fab.layoutParams = params
+                }
+                start()
+            }
+        }
+
+        nowPlayingBar?.addOnLayoutChangeListener(nowPlayingBarLayoutListener)
+
+        // Set initial margin if bar is already visible
+        nowPlayingBar?.let { v ->
+            if (v.isVisible && v.height > 0) {
+                val params =
+                    playArtistTracksExtendedFloatingActionButton.layoutParams as CoordinatorLayout.LayoutParams
+                params.bottomMargin = v.height + fabMarginBottom
+                playArtistTracksExtendedFloatingActionButton.layoutParams = params
+            }
+        }
+
         toolbar.setupWithNavController(findNavController())
 
         albumsRecyclerView.adapter = albumsAdapter
@@ -208,6 +260,10 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
         albumsRecyclerView.adapter = null
         appearsInAlbumRecyclerView.adapter = null
         appearsInPlaylistRecyclerView.adapter = null
+
+        requireActivity().findViewById<View>(R.id.nowPlayingBar)
+            ?.removeOnLayoutChangeListener(nowPlayingBarLayoutListener)
+        nowPlayingBarLayoutListener = null
 
         super.onDestroyView()
     }
