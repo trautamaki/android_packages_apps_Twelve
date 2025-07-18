@@ -283,6 +283,7 @@ class JellyfinDataSource(
                 startsWith(audiosUri.toString()) -> MediaType.AUDIO
                 startsWith(genresUri.toString()) -> MediaType.GENRE
                 startsWith(playlistsUri.toString()) -> MediaType.PLAYLIST
+                startsWith(favoritesUri.toString()) -> MediaType.PLAYLIST
                 else -> null
             }
         }?.let {
