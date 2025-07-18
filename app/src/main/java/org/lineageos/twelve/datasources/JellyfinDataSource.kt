@@ -206,6 +206,10 @@ class JellyfinDataSource(
         fun onPlaylistsChanged() {
             playlistsChanged.value = Any()
         }
+
+        fun onFavoritesChanged() {
+            favoritesChanged.value = Any()
+        }
     }
 
     private val packageName = context.packageName
@@ -364,10 +368,12 @@ class JellyfinDataSource(
         }
     }
 
-    override fun audio(audioUri: Uri) = providersManager.mapWithInstanceOf(audioUri) {
-        val id = UUID.fromString(audioUri.lastPathSegment!!)
-        client.getAudio(id).map {
-            it.toMediaItemAudio()
+    override fun audio(audioUri: Uri) = providersManager.flatMapWithInstanceOf(audioUri) {
+        favoritesChanged.mapLatest {
+            val id = UUID.fromString(audioUri.lastPathSegment!!)
+            client.getAudio(id).map {
+                it.toMediaItemAudio()
+            }
         }
     }
 
@@ -552,6 +558,8 @@ class JellyfinDataSource(
         when (isFavorite) {
             true -> client.addToFavorites(UUID.fromString(audioUri.lastPathSegment!!))
             false -> client.removeFromFavorites(UUID.fromString(audioUri.lastPathSegment!!))
+        }.map {
+            onFavoritesChanged()
         }
     }
 
