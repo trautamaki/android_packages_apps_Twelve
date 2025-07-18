@@ -30,5 +30,5 @@ data class Item(
     @SerialName("IndexNumber") val indexNumber: Int? = null,
     @SerialName("Genres") val genres: List<String>? = null,
     @SerialName("Type") val type: ItemType? = null,
-    @SerialName("IsFavorite") val isFavorite: Boolean? = null,
+    @SerialName("UserData") val userData: UserData? = null,
 )

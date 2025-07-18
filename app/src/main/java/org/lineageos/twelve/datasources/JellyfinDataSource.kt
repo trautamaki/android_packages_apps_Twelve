@@ -140,7 +140,7 @@ class JellyfinDataSource(
             .setGenreUri(getGenreUri(id.toString()))
             .setGenreName(genres?.firstOrNull())
             .setYear(productionYear)
-            .setIsFavorite(isFavorite == true)
+            .setIsFavorite(userData?.isFavorite == true)
             .apply {
                 albumId?.let { albumId ->
                     setThumbnail(
@@ -441,7 +441,7 @@ class JellyfinDataSource(
         providersManager.flatMapWithInstanceOf(audioUri) {
             combine(
                 favoritesChanged.mapLatest {
-                    val isFavorite = client.getAudio(audioId).getOrNull()?.isFavorite
+                    val isFavorite = client.getAudio(audioId).getOrNull()?.userData?.isFavorite
                     favoritesPlaylist to (isFavorite == true)
                 },
                 playlistsChanged.mapLatest {
