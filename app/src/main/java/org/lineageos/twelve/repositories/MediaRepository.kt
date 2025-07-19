@@ -369,6 +369,14 @@ class MediaRepository(
 
     /**
      * Get the [MediaDataSource] associated with the given [ProviderIdentifier].
+     * @see MediaDataSource.getSuggestionsFromAudio
+     */
+    fun getSuggestionsFromAudio(audioUri: Uri) = withNavigationDataSourceAndProviderFlow {
+        getSuggestionsFromAudio(it, audioUri)
+    }
+
+    /**
+     * Get the [MediaDataSource] associated with the given [Provider].
      *
      * @param providerIdentifier The [ProviderIdentifier]
      * @return The corresponding [MediaDataSource]
