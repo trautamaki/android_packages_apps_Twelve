@@ -225,6 +225,13 @@ class FileDataSource(
         isFavorite: Boolean,
     ) = Result.Failure(Error.NOT_IMPLEMENTED)
 
+    override fun getSuggestionsFromAudio(
+        providerIdentifier: ProviderIdentifier,
+        audioUri: Uri
+    ) = flowOf(
+        Result.Failure(Error.NOT_IMPLEMENTED)
+    )
+
     private suspend fun getMimeType(uri: Uri) = withContext(Dispatchers.IO) {
         when (uri.scheme) {
             SCHEME_FILE -> uri.determineFileMimeType()
