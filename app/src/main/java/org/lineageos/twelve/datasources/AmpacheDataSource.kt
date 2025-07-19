@@ -704,6 +704,13 @@ class AmpacheDataSource(
         }
     }
 
+    override fun getSuggestionsFromAudio(
+        providerIdentifier: ProviderIdentifier,
+        audioUri: Uri
+    ): Flow<MediaRequestStatus<ActivityTab>> {
+        TODO("Not yet implemented")
+    }
+
     /**
      * Format a sort value for the Ampache API.
      */
