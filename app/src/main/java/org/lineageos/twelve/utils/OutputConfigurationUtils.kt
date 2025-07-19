@@ -198,7 +198,8 @@ object OutputConfigurationUtils {
             val transcodingEncoding = transcoding.encoding ?: return@run false
 
             val sourcePcmBitDepth = pcmEncodingBitDepths[sourceEncoding] ?: return@run false
-            val transcodingPcmBitDepth = pcmEncodingBitDepths[transcodingEncoding] ?: return@run false
+            val transcodingPcmBitDepth =
+                pcmEncodingBitDepths[transcodingEncoding] ?: return@run false
 
             sourcePcmBitDepth > transcodingPcmBitDepth
         }
