@@ -31,9 +31,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.search.SearchView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.lineageos.twelve.R
@@ -52,6 +54,7 @@ import org.lineageos.twelve.models.Genre
 import org.lineageos.twelve.models.MediaItem
 import org.lineageos.twelve.models.Playlist
 import org.lineageos.twelve.models.Result
+import org.lineageos.twelve.models.Result.Companion.onError
 import org.lineageos.twelve.models.areContentsTheSame
 import org.lineageos.twelve.models.areItemsTheSame
 import org.lineageos.twelve.ui.recyclerview.SimpleListAdapter
@@ -69,6 +72,9 @@ class MainFragment : Fragment(R.layout.fragment_main) {
     // Views
     private val navigationBarView by getViewProperty<NavigationBarView>(R.id.navigationBarView)
     private val nowPlayingBar by getViewProperty<NowPlayingBar>(R.id.nowPlayingBar)
+    private val playRandomSongsExtendedFloatingActionButton by getViewProperty<ExtendedFloatingActionButton>(
+        R.id.playRandomSongsExtendedFloatingActionButton
+    )
     private val providerMaterialButton by getViewProperty<MaterialButton>(R.id.providerMaterialButton)
     private val searchLinearProgressIndicator by getViewProperty<LinearProgressIndicator>(R.id.searchLinearProgressIndicator)
     private val searchNoElementsLinearLayout by getViewProperty<LinearLayout>(R.id.searchNoElementsLinearLayout)
@@ -313,6 +319,18 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         settingsMaterialButton.setOnClickListener {
             val intent = Intent(context, SettingsActivity::class.java)
             startActivity(intent)
+        }
+
+        playRandomSongsExtendedFloatingActionButton.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.playAllAudios().onError {
+                    Snackbar.make(
+                        navigationBarView,
+                        it.toString(),
+                        Snackbar.LENGTH_SHORT,
+                    ).show()
+                }
+            }
         }
 
         // View pager
