@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 The LineageOS Project
+ * SPDX-FileCopyrightText: 2025 The LineageOS Project
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -21,7 +21,17 @@ import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.FlowResult.Companion.asFlowResult
 import org.lineageos.twelve.models.Result
 
-class SearchViewModel(application: Application) : TwelveViewModel(application) {
+/**
+ * Home page view model.
+ */
+class MainViewModel(application: Application) : NowPlayingViewModel(application) {
+    val navigationProvider = mediaRepository.navigationProvider
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            null,
+        )
+
     private val searchQuery = MutableStateFlow("" to false)
 
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -57,18 +57,14 @@ import org.lineageos.twelve.models.areItemsTheSame
 import org.lineageos.twelve.ui.recyclerview.SimpleListAdapter
 import org.lineageos.twelve.ui.views.ListItem
 import org.lineageos.twelve.ui.views.NowPlayingBar
-import org.lineageos.twelve.viewmodels.NowPlayingViewModel
-import org.lineageos.twelve.viewmodels.ProvidersViewModel
-import org.lineageos.twelve.viewmodels.SearchViewModel
+import org.lineageos.twelve.viewmodels.MainViewModel
 
 /**
  * The home page.
  */
 class MainFragment : Fragment(R.layout.fragment_main) {
     // View models
-    private val viewModel by viewModels<NowPlayingViewModel>()
-    private val providersViewModel by viewModels<ProvidersViewModel>()
-    private val searchViewModel by viewModels<SearchViewModel>()
+    private val viewModel by viewModels<MainViewModel>()
 
     // Views
     private val navigationBarView by getViewProperty<NavigationBarView>(R.id.navigationBarView)
@@ -305,7 +301,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
             )
         }
         providerMaterialButton.setOnLongClickListener {
-            providersViewModel.navigationProvider.value?.let {
+            viewModel.navigationProvider.value?.let {
                 findNavController().navigateSafe(
                     R.id.action_mainFragment_to_fragment_provider_information_bottom_sheet_dialog,
                     ManageProviderFragment.createBundle(providerIdentifier = it),
@@ -362,19 +358,19 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         searchRecyclerView.adapter = searchAdapter
 
         searchView.editText.addTextChangedListener { text ->
-            searchViewModel.setSearchQuery(text.toString())
+            viewModel.setSearchQuery(text.toString())
         }
         searchView.editText.setOnEditorActionListener { _, _, _ ->
             inputMethodManager.scheduleHideSoftInput(searchView.editText, 0)
             searchView.editText.clearFocus()
-            searchViewModel.setSearchQuery(searchView.editText.text.toString(), true)
+            viewModel.setSearchQuery(searchView.editText.text.toString(), true)
             true
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    providersViewModel.navigationProvider.collectLatest {
+                    viewModel.navigationProvider.collectLatest {
                         it?.let {
                             providerMaterialButton.text = it.name
                             providerMaterialButton.setIconResource(it.type.iconDrawableResId)
@@ -432,7 +428,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 }
 
                 launch {
-                    searchViewModel.searchResults.collectLatest {
+                    viewModel.searchResults.collectLatest {
                         searchLinearProgressIndicator.setProgressCompat(it)
 
                         when (it) {
