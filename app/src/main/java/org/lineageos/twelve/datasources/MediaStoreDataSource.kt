@@ -278,6 +278,36 @@ class MediaStoreDataSource(
         }
     }
 
+    override fun audios(
+        providerIdentifier: ProviderIdentifier,
+        sortingRule: SortingRule,
+    ) = providersManager.flatMapWithInstanceOf(providerIdentifier) {
+        contentResolver.queryFlow(
+            audiosUri,
+            audiosProjection,
+            bundleOf(
+                ContentResolver.QUERY_ARG_SORT_COLUMNS to listOfNotNull(
+                    when (sortingRule.strategy) {
+                        SortingStrategy.ARTIST_NAME -> MediaStore.Audio.AudioColumns.ARTIST
+                        SortingStrategy.CREATION_DATE -> MediaStore.Audio.AudioColumns.YEAR
+                        SortingStrategy.NAME -> MediaStore.Audio.AudioColumns.TITLE
+                        else -> null
+                    }?.let { column ->
+                        when (sortingRule.reverse) {
+                            true -> "$column DESC"
+                            false -> column
+                        }
+                    },
+                    MediaStore.Audio.AudioColumns.TITLE.takeIf {
+                        sortingRule.strategy != SortingStrategy.NAME
+                    },
+                ).toTypedArray(),
+            )
+        ).mapEachRowToAudio().mapLatest {
+            Result.Success(it)
+        }
+    }
+
     override fun genres(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
