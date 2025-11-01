@@ -26,8 +26,11 @@ import androidx.media3.common.Player
 import androidx.media3.common.Rating
 import androidx.media3.common.listen
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.analytics.AnalyticsListener
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.LibraryResult
@@ -50,6 +53,7 @@ import org.lineageos.twelve.TwelveApplication
 import org.lineageos.twelve.ext.Bundle
 import org.lineageos.twelve.ext.enableFloatOutput
 import org.lineageos.twelve.ext.enableOffload
+import org.lineageos.twelve.ext.enablePlaybackCache
 import org.lineageos.twelve.ext.mapAsync
 import org.lineageos.twelve.ext.mediaItems
 import org.lineageos.twelve.ext.next
@@ -435,6 +439,17 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
             .setUsage(C.USAGE_MEDIA)
             .build()
 
+        val defaultFactory = DefaultDataSource.Factory(applicationContext)
+        val dataSourceFactory = if (sharedPreferences.enablePlaybackCache) {
+            CacheDataSource.Factory()
+                .setCache((application as TwelveApplication).downloadCache)
+                .setUpstreamDataSourceFactory(defaultFactory)
+                .setCacheWriteDataSinkFactory(null)
+                .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+        } else {
+            defaultFactory
+        }
+
         player = ExoPlayer.Builder(this)
             .setAudioAttributes(audioAttributes, true)
             .setHandleAudioBecomingNoisy(true)
@@ -452,6 +467,7 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
             )
             .setSkipSilenceEnabled(sharedPreferences.skipSilence)
             .setWakeMode(C.WAKE_MODE_NETWORK)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
             .experimentalSetDynamicSchedulingEnabled(true)
             .build()
             .apply {
