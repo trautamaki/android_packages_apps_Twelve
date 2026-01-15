@@ -77,7 +77,7 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
          * Toggles audio offload mode.
          *
          * Arguments:
-         * - [ARG_VALUE] ([Boolean]): Whether to enable or disable offload
+         * - [CustomCommand.ARG_VALUE] ([Boolean]): Whether to enable or disable offload
          */
         TOGGLE_OFFLOAD,
 
@@ -85,7 +85,7 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
          * Toggles skip silence.
          *
          * Arguments:
-         * - [ARG_VALUE] ([Boolean]): Whether to enable or disable skip silence
+         * - [CustomCommand.ARG_VALUE] ([Boolean]): Whether to enable or disable skip silence
          */
         TOGGLE_SKIP_SILENCE,
 
@@ -93,7 +93,7 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
          * Get the audio session ID.
          *
          * Response:
-         * - [RSP_VALUE] ([Int]): The audio session ID
+         * - [CustomCommand.RSP_VALUE] ([Int]): The audio session ID
          */
         GET_AUDIO_SESSION_ID,
 
@@ -101,7 +101,7 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
          * Toggle shuffle mode.
          *
          * Arguments:
-         * - [ARG_VALUE] ([Boolean]): Whether to enable or disable shuffle mode
+         * - [CustomCommand.ARG_VALUE] ([Boolean]): Whether to enable or disable shuffle mode
          */
         TOGGLE_SHUFFLE {
             override fun buildCommandButton(
@@ -129,7 +129,7 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
          * Toggle repeat mode.
          *
          * Arguments:
-         * - [ARG_VALUE] ([String]): The repeat mode
+         * - [CustomCommand.ARG_VALUE] ([String]): The repeat mode
          */
         TOGGLE_REPEAT {
             override fun buildCommandButton(
