@@ -703,7 +703,10 @@ class SubsonicDataSource(
     override suspend fun onAudioPlayed(
         audioUri: Uri,
         positionMs: Long,
-    ): MediaRequestStatus<Unit> = Result.Success<Unit, Error>(Unit)
+    ): MediaRequestStatus<Unit> = providersManager.doWithInstanceOf(audioUri) {
+        subsonicClient.scrobble(ids = listOf(audioUri.lastPathSegment!!))
+        Result.Success(Unit)
+    }
 
     override suspend fun setFavorite(
         audioUri: Uri,
