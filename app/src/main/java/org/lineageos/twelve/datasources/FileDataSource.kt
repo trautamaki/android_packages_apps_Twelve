@@ -217,16 +217,14 @@ class FileDataSource(
         audioUri: Uri,
     ) = Result.Error<Unit, _>(Error.NOT_FOUND)
 
-    override suspend fun onAudioPlayed(audioUri: Uri) = Result.Success<_, Error>(Unit)
+    override suspend fun onAudioPlayed(
+        audioUri: Uri,
+        positionMs: Long,
+    ): MediaRequestStatus<Unit> = Result.Success<_, Error>(Unit)
 
     override suspend fun setFavorite(
         audioUri: Uri,
         isFavorite: Boolean,
-    ) = Result.Error<Unit, _>(Error.NOT_IMPLEMENTED)
-
-    override suspend fun broadcastPlaybackStartFromAudio(
-        audioUri: Uri,
-        positionTicks: Long
     ) = Result.Error<Unit, _>(Error.NOT_IMPLEMENTED)
 
     private suspend fun getMimeType(uri: Uri) = withContext(Dispatchers.IO) {

@@ -621,7 +621,16 @@ class JellyfinDataSource(
         }
     }
 
-    override suspend fun onAudioPlayed(audioUri: Uri) = Result.Success<Unit, Error>(Unit)
+    override suspend fun onAudioPlayed(
+        audioUri: Uri,
+        positionMs: Long,
+    ) = providersManager.doWithInstanceOf(audioUri) {
+        val itemId = UUID.fromString(audioUri.lastPathSegment!!)
+        client.broadcastPlaybackStart(
+            itemId = itemId,
+            positionTicks = positionMs,
+        )
+    }
 
     override suspend fun setFavorite(
         audioUri: Uri,
@@ -633,17 +642,6 @@ class JellyfinDataSource(
         }.map {
             onFavoritesChanged()
         }
-    }
-
-    override suspend fun broadcastPlaybackStartFromAudio(
-        audioUri: Uri,
-        positionTicks: Long,
-    ) = providersManager.doWithInstanceOf(audioUri) {
-        val itemId = UUID.fromString(audioUri.lastPathSegment!!)
-        client.broadcastPlaybackStart(
-            itemId = itemId,
-            positionTicks = positionTicks,
-        )
     }
 
     companion object {

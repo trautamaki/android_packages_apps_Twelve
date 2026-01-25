@@ -495,13 +495,10 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
 
                     lifecycleScope.launch {
                         player.currentMediaItem?.mediaId?.let {
-                            mediaRepository.broadcastPlaybackStart(it.toUri())
-                        }
-                    }
-
-                    lifecycleScope.launch {
-                        player.currentMediaItem?.localConfiguration?.uri?.let {
-                            mediaRepository.onAudioPlayed(it)
+                            mediaRepository.onAudioPlayed(
+                                it.toUri(),
+                                player.currentPosition,
+                            )
                         }
                     }
                 }

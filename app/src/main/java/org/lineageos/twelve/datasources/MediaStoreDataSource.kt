@@ -711,8 +711,9 @@ class MediaStoreDataSource(
     }
 
     override suspend fun onAudioPlayed(
-        audioUri: Uri
-    ): Result<Unit, Error> {
+        audioUri: Uri,
+        positionMs: Long,
+    ): MediaRequestStatus<Unit> {
         database.getLocalMediaStatsProviderDao().increasePlayCount(audioUri)
         return Result.Success(Unit)
     }
@@ -726,11 +727,6 @@ class MediaStoreDataSource(
     }.let {
         Result.Success<_, Error>(Unit)
     }
-
-    override suspend fun broadcastPlaybackStartFromAudio(
-        audioUri: Uri,
-        positionTicks: Long
-    ) = Result.Error<Unit, _>(Error.NOT_IMPLEMENTED)
 
     fun audios() = contentResolver.queryFlow(
         getAudiosUri(MediaStore.VOLUME_EXTERNAL),

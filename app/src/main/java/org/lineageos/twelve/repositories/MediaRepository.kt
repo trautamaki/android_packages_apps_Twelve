@@ -333,9 +333,9 @@ class MediaRepository(
     /**
      * @see MediaDataSource.onAudioPlayed
      */
-    suspend fun onAudioPlayed(audioUri: Uri) =
+    suspend fun onAudioPlayed(audioUri: Uri, positionMs: Long) =
         withMediaItemsDataSource(audioUri) {
-            onAudioPlayed(audioUri)
+            onAudioPlayed(audioUri, positionMs)
         }
 
     /**
@@ -344,14 +344,6 @@ class MediaRepository(
     suspend fun setFavorite(audioUri: Uri, favorite: Boolean) =
         withMediaItemsDataSource(audioUri) {
             setFavorite(audioUri, favorite)
-        }
-
-    /**
-     * Broadcast playback start for a given audio URI.
-     */
-    suspend fun broadcastPlaybackStart(audioUri: Uri, positionTicks: Long = 0L) =
-        withMediaItemsDataSource(audioUri) {
-            broadcastPlaybackStartFromAudio(audioUri, positionTicks)
         }
 
     /**

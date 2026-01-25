@@ -700,7 +700,10 @@ class SubsonicDataSource(
         }
     }
 
-    override suspend fun onAudioPlayed(audioUri: Uri) = Result.Success<Unit, Error>(Unit)
+    override suspend fun onAudioPlayed(
+        audioUri: Uri,
+        positionMs: Long,
+    ): MediaRequestStatus<Unit> = Result.Success<Unit, Error>(Unit)
 
     override suspend fun setFavorite(
         audioUri: Uri,
@@ -713,11 +716,6 @@ class SubsonicDataSource(
             onFavoritesChanged()
         }
     }
-
-    override suspend fun broadcastPlaybackStartFromAudio(
-        audioUri: Uri,
-        positionTicks: Long
-    ) = Result.Error<Unit, _>(Error.NOT_IMPLEMENTED)
 
     /**
      * Apply [List.asReversed] if [condition] is true.

@@ -219,9 +219,10 @@ interface MediaDataSource {
     /**
      * Notify the source about an audio item being played.
      * @param audioUri The URI of the audio
+     * @param positionMs The position of the audio in milliseconds
      * @return [Result.Success] if success, [Result.Error] with an error otherwise
      */
-    suspend fun onAudioPlayed(audioUri: Uri): MediaRequestStatus<Unit>
+    suspend fun onAudioPlayed(audioUri: Uri, positionMs: Long): MediaRequestStatus<Unit>
 
     /**
      * Set the favorite status of an audio.
@@ -230,12 +231,4 @@ interface MediaDataSource {
      * @return [Result.Success] if success, [Result.Error] with an error otherwise
      */
     suspend fun setFavorite(audioUri: Uri, isFavorite: Boolean): MediaRequestStatus<Unit>
-
-    /**
-     * Broadcast that audio playback has started.
-     */
-    suspend fun broadcastPlaybackStartFromAudio(
-        audioUri: Uri,
-        positionTicks: Long = 0L,
-    ): MediaRequestStatus<Unit>
 }
