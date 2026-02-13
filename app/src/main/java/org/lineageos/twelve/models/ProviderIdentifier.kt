@@ -17,9 +17,9 @@ import org.lineageos.twelve.ext.readSerializable
  * @param typeId The ID of the provider relative to the [ProviderType]
  */
 @Serializable
-open class ProviderIdentifier(
-    open val type: ProviderType,
-    open val typeId: Long,
+data class ProviderIdentifier(
+    val type: ProviderType,
+    val typeId: Long,
 ) : Comparable<ProviderIdentifier>, Parcelable {
     override fun compareTo(other: ProviderIdentifier) = compareValuesBy(
         this, other,

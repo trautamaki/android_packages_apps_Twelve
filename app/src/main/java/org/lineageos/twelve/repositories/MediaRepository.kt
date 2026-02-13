@@ -408,8 +408,8 @@ class MediaRepository(
         predicate: MediaDataSource.(ProviderIdentifier) -> Flow<Result<T, Error>>
     ) = navigationProvider.flatMapLatest {
         it?.let {
-            withProviderDataSource(it) {
-                predicate(it)
+            withProviderDataSource(it.identifier) {
+                predicate(it.identifier)
             }
         } ?: flowOf(Result.Error(Error.NOT_FOUND))
     }
