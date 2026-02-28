@@ -143,35 +143,34 @@ class ActivityFragment : Fragment(R.layout.fragment_activity) {
     }
 
     private suspend fun loadData() {
+        lifecycleScope.launch {
+            viewModel.lastfmActivityTabs.collectLatest { tabs ->
+                val filtered = adapter.currentList.filter { !it.id.startsWith("lastfm_") }
+                adapter.submitList(tabs + filtered)
+            }
+        }
+
         viewModel.activity.collectLatest {
             linearProgressIndicator.setProgressCompat(it)
 
             when (it) {
                 is FlowResult.Loading -> {
-                    // Do nothing
                 }
 
                 is FlowResult.Success -> {
-                    val data = it.data
+                    val lastfmTabs =                         adapter.currentList.filter { tab -> tab.id.startsWith("lastfm_") }
+                    adapter.submitList(lastfmTabs + it.data)
 
-                    adapter.submitList(data)
-
-                    val isEmpty = it.data.isEmpty()
+                    val isEmpty = it.data.isEmpty() && lastfmTabs.isEmpty()
                     recyclerView.isVisible = !isEmpty
                     noElementsLinearLayout.isVisible = isEmpty
                 }
 
                 is FlowResult.Error -> {
-                    Log.e(LOG_TAG, "Failed to load activity, error: ${it.error}", it.throwable)
-
                     recyclerView.isVisible = false
                     noElementsLinearLayout.isVisible = true
                 }
             }
         }
-    }
-
-    companion object {
-        private val LOG_TAG = ActivityFragment::class.simpleName!!
     }
 }
