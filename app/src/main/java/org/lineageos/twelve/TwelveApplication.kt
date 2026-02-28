@@ -9,14 +9,17 @@ import android.app.Application
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
-import androidx.media3.datasource.cache.NoOpCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
+import androidx.preference.PreferenceManager
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import com.google.android.material.color.DynamicColors
 import kotlinx.coroutines.MainScope
 import org.lineageos.twelve.database.TwelveDatabase
+import org.lineageos.twelve.datasources.lastfm.LastfmClient
+import org.lineageos.twelve.ext.lastfmApiKey
+import org.lineageos.twelve.repositories.LastfmRepository
 import org.lineageos.twelve.repositories.MediaRepository
 import org.lineageos.twelve.repositories.OutputConfigurationRepository
 import org.lineageos.twelve.repositories.ProvidersRepository
@@ -28,11 +31,21 @@ import java.io.File
 class TwelveApplication : Application(), SingletonImageLoader.Factory {
     private val coroutineScope = MainScope()
     private val database by lazy { TwelveDatabase.get(applicationContext) }
+    private val sharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(this)
+    }
     val providersRepository by lazy {
         ProvidersRepository(applicationContext, coroutineScope, database)
     }
     val mediaRepository by lazy {
         MediaRepository(applicationContext, coroutineScope, providersRepository, database)
+    }
+    val lastfmRepository by lazy {
+        LastfmRepository(
+            client = LastfmClient(
+                server = "https://ws.audioscrobbler.com",
+                apiKeyProvider = { sharedPreferences.lastfmApiKey })
+        )
     }
     val resumptionPlaylistRepository by lazy { ResumptionPlaylistRepository(database) }
     val outputConfigurationRepository by lazy { OutputConfigurationRepository() }
