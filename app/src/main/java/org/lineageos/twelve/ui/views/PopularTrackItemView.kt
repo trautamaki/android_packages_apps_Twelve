@@ -7,7 +7,6 @@ import androidx.appcompat.widget.AppCompatImageButton
 import com.google.android.material.card.MaterialCardView
 import org.lineageos.twelve.R
 import org.lineageos.twelve.models.Audio
-import org.lineageos.twelve.models.PopularTrack
 
 class PopularTrackItemView @JvmOverloads constructor(
     context: Context,
