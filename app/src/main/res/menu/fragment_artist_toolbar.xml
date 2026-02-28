@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_play"
+        android:icon="@drawable/ic_play_arrow"
+        android:title="@string/action_play"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_shuffle"
+        android:icon="@drawable/ic_shuffle_play"
+        android:title="@string/shuffle_play"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+
+</menu>
