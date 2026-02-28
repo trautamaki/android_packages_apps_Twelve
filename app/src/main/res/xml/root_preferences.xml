@@ -85,6 +85,11 @@
             app:summary="@string/split_local_devices_summary"
             app:title="@string/split_local_devices" />
 
+        <EditTextPreference
+            app:key="lastfm_api_key"
+            app:title="@string/lastfm_api_key_title"
+            app:summary="@string/lastfm_api_key_summary"
+            app:useSimpleSummaryProvider="false" />
     </PreferenceCategory>
 
 </PreferenceScreen>

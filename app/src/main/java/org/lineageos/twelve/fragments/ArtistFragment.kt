@@ -42,12 +42,13 @@ import org.lineageos.twelve.ext.setProgressCompat
 import org.lineageos.twelve.ext.updatePadding
 import org.lineageos.twelve.models.Album
 import org.lineageos.twelve.models.Audio
-import org.lineageos.twelve.models.Error
 import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.Playlist
+import org.lineageos.twelve.models.PopularTrack
 import org.lineageos.twelve.ui.recyclerview.SimpleListAdapter
 import org.lineageos.twelve.ui.recyclerview.UniqueItemDiffCallback
 import org.lineageos.twelve.ui.views.HorizontalMediaItemView
+import org.lineageos.twelve.ui.views.PopularTrackItemView
 import org.lineageos.twelve.utils.PermissionsChecker
 import org.lineageos.twelve.utils.PermissionsUtils
 import org.lineageos.twelve.viewmodels.ArtistViewModel
@@ -62,6 +63,8 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
     // Views
     private val albumsLinearLayout by getViewProperty<LinearLayout>(R.id.albumsLinearLayout)
     private val albumsRecyclerView by getViewProperty<RecyclerView>(R.id.albumsRecyclerView)
+    private val popularTracksLinearLayout by getViewProperty<LinearLayout>(R.id.popularTracksLinearLayout)
+    private val popularTracksRecyclerView by getViewProperty<RecyclerView>(R.id.popularTracksRecyclerView)
     override val appBarLayout by getViewProperty<AppBarLayout>(R.id.appBarLayout)
     private val appearsInAlbumLinearLayout by getViewProperty<LinearLayout>(R.id.appearsInAlbumLinearLayout)
     private val appearsInAlbumRecyclerView by getViewProperty<RecyclerView>(R.id.appearsInAlbumRecyclerView)
@@ -107,7 +110,29 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
             }
         }
     }
+
+    private val createPopularTrackAdapter = {
+        object : SimpleListAdapter<PopularTrack, PopularTrackItemView>(
+            UniqueItemDiffCallback(),
+            ::PopularTrackItemView,
+        ) {
+            override fun ViewHolder.onBindView(item: PopularTrack) {
+                view.setItem(item, bindingAdapterPosition)
+
+                view.setOnClickListener {
+                    // play via Jellyfin item ID
+                }
+
+                // TODO
+                /*view.binding.playButton.setOnClickListener {
+                    // play via Jellyfin item ID
+                }*/
+            }
+        }
+    }
+
     private val albumsAdapter by lazy { createAlbumAdapter() }
+    private val popularTracksAdapter by lazy { createPopularTrackAdapter() }
     private val appearsInAlbumAdapter by lazy { createAlbumAdapter() }
     private val appearsInPlaylistAdapter by lazy {
         object : SimpleListAdapter<Playlist, HorizontalMediaItemView>(
@@ -242,6 +267,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
         toolbar.setupWithNavController(findNavController())
 
         albumsRecyclerView.adapter = albumsAdapter
+        popularTracksRecyclerView.adapter = popularTracksAdapter
         appearsInAlbumRecyclerView.adapter = appearsInAlbumAdapter
         appearsInPlaylistRecyclerView.adapter = appearsInPlaylistAdapter
 
@@ -258,6 +284,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
 
     override fun onDestroyView() {
         albumsRecyclerView.adapter = null
+        popularTracksRecyclerView.adapter = null
         appearsInAlbumRecyclerView.adapter = null
         appearsInPlaylistRecyclerView.adapter = null
 
@@ -268,68 +295,80 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
         super.onDestroyView()
     }
 
-    private suspend fun loadData() {
-        viewModel.artist.collectLatest {
-            linearProgressIndicator.setProgressCompat(it)
+    private fun loadData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-            when (it) {
-                is FlowResult.Loading -> {
-                    // Do nothing
-                }
+                launch {
+                    viewModel.artist.collectLatest {
+                        linearProgressIndicator.setProgressCompat(it)
 
-                is FlowResult.Success -> {
-                    val (artist, artistWorks) = it.data
+                        when (it) {
+                            is FlowResult.Loading -> Unit
 
-                    artist.name?.also { artistName ->
-                        toolbar.title = artistName
-                        artistNameTextView.text = artistName
-                    } ?: run {
-                        toolbar.setTitle(R.string.artist_unknown)
-                        artistNameTextView.setText(R.string.artist_unknown)
+                            is FlowResult.Success -> {
+                                val (artist, artistWorks) = it.data
+
+                                artist.name?.also { artistName ->
+                                    toolbar.title = artistName
+                                    artistNameTextView.text = artistName
+                                } ?: run {
+                                    toolbar.setTitle(R.string.artist_unknown)
+                                    artistNameTextView.setText(R.string.artist_unknown)
+                                }
+
+                                thumbnailImageView.loadThumbnail(
+                                    artist.thumbnail,
+                                    placeholder = R.drawable.ic_person
+                                )
+
+                                albumsAdapter.submitList(artistWorks.albums)
+                                appearsInAlbumAdapter.submitList(artistWorks.appearsInAlbum)
+                                appearsInPlaylistAdapter.submitList(artistWorks.appearsInPlaylist)
+
+                                val isAlbumsEmpty = artistWorks.albums.isEmpty()
+                                albumsLinearLayout.isVisible = !isAlbumsEmpty
+
+                                val isAppearsInAlbumEmpty = artistWorks.appearsInAlbum.isEmpty()
+                                appearsInAlbumLinearLayout.isVisible = !isAppearsInAlbumEmpty
+
+                                val isAppearsInPlaylistEmpty =
+                                    artistWorks.appearsInPlaylist.isEmpty()
+                                appearsInPlaylistLinearLayout.isVisible = !isAppearsInPlaylistEmpty
+
+                                val isEmpty = listOf(
+                                    isAlbumsEmpty,
+                                    isAppearsInAlbumEmpty,
+                                    isAppearsInPlaylistEmpty,
+                                ).all { empty -> empty }
+
+                                nestedScrollView.isVisible = !isEmpty
+                                noElementsNestedScrollView.isVisible = isEmpty
+                            }
+
+                            is FlowResult.Error -> {
+                                Log.e(LOG_TAG, "Error loading artist", it.throwable)
+                            }
+                        }
                     }
-
-                    thumbnailImageView.loadThumbnail(
-                        artist.thumbnail,
-                        placeholder = R.drawable.ic_person
-                    )
-
-                    albumsAdapter.submitList(artistWorks.albums)
-                    appearsInAlbumAdapter.submitList(artistWorks.appearsInAlbum)
-                    appearsInPlaylistAdapter.submitList(artistWorks.appearsInPlaylist)
-
-                    val isAlbumsEmpty = artistWorks.albums.isEmpty()
-                    albumsLinearLayout.isVisible = !isAlbumsEmpty
-
-                    val isAppearsInAlbumEmpty = artistWorks.appearsInAlbum.isEmpty()
-                    appearsInAlbumLinearLayout.isVisible = !isAppearsInAlbumEmpty
-
-                    val isAppearsInPlaylistEmpty = artistWorks.appearsInPlaylist.isEmpty()
-                    appearsInPlaylistLinearLayout.isVisible = !isAppearsInPlaylistEmpty
-
-                    val isEmpty = listOf(
-                        isAlbumsEmpty,
-                        isAppearsInAlbumEmpty,
-                        isAppearsInPlaylistEmpty,
-                    ).all { isEmpty -> isEmpty }
-                    nestedScrollView.isVisible = !isEmpty
-                    noElementsNestedScrollView.isVisible = isEmpty
                 }
 
-                is FlowResult.Error -> {
-                    Log.e(LOG_TAG, "Error loading artist, error: ${it.error}", it.throwable)
+                launch {
+                    viewModel.popularTracks.collectLatest { result ->
+                        when (result) {
+                            is FlowResult.Loading -> {}
 
-                    toolbar.title = ""
+                            is FlowResult.Success -> {
+                                val tracks = result.data
+                                popularTracksAdapter.submitList(tracks)
+                                popularTracksLinearLayout.isVisible = tracks.isNotEmpty()
+                            }
 
-                    albumsAdapter.submitList(listOf())
-                    appearsInAlbumAdapter.submitList(listOf())
-                    appearsInPlaylistAdapter.submitList(listOf())
-
-                    nestedScrollView.isVisible = false
-                    noElementsNestedScrollView.isVisible = true
-
-                    if (it.error == Error.NOT_FOUND) {
-                        // Get out of here
-                        findNavController().navigateUp()
+                            is FlowResult.Error -> {
+                                popularTracksAdapter.submitList(emptyList())
+                                popularTracksLinearLayout.isVisible = false
+                            }
+                        }
                     }
                 }
             }
