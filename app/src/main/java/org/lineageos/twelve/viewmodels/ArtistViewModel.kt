@@ -101,7 +101,9 @@ class ArtistViewModel(application: Application) : TwelveViewModel(application) {
             FlowResult.Loading()
         )
 
-    fun playAudio(audio: Audio) {
-        playAudio(listOf(audio), 0)
+    fun buildPlayQueue(popularTracks: List<Audio>, artistTracks: List<Audio>): List<Audio> {
+        val popularUris = popularTracks.map { it.uri }.toSet()
+        val remaining = artistTracks.filter { it.uri !in popularUris }
+        return popularTracks + remaining
     }
 }
