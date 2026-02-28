@@ -4,16 +4,56 @@
      SPDX-License-Identifier: Apache-2.0
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/artistNameTextView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textAppearance="?attr/textAppearanceHeadlineMedium"
         tools:text="Ryuichi Sakamoto" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/playFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:contentDescription="@string/action_play"
+            android:src="@drawable/ic_play_arrow"
+            android:visibility="invisible"
+            app:fabCustomSize="40dp"
+            app:backgroundTint="?attr/colorTertiaryContainer"
+            app:tint="?attr/colorOnTertiaryContainer"
+            app:elevation="0dp"
+            tools:visibility="visible"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/shuffleFloatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:contentDescription="@string/shuffle_play"
+            android:src="@drawable/ic_shuffle_play"
+            android:visibility="invisible"
+            app:fabCustomSize="40dp"
+            app:backgroundTint="?attr/colorSecondaryContainer"
+            app:tint="?attr/colorOnSurface"
+            app:elevation="0dp"
+            app:borderWidth="0dp"
+            tools:visibility="visible" />
+
+    </LinearLayout>
 </LinearLayout>
