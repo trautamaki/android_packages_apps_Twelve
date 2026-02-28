@@ -3,8 +3,10 @@ package org.lineageos.twelve.ui.views
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import com.google.android.material.card.MaterialCardView
 import org.lineageos.twelve.R
+import org.lineageos.twelve.models.Audio
 import org.lineageos.twelve.models.PopularTrack
 
 class PopularTrackItemView @JvmOverloads constructor(
@@ -12,6 +14,7 @@ class PopularTrackItemView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : MaterialCardView(context, attrs, defStyleAttr) {
+    val playButton by lazy { findViewById<AppCompatImageButton>(R.id.playButton) }
     private val trackNumberTextView by lazy { findViewById<TextView>(R.id.trackNumberTextView) }
     private val trackNameTextView by lazy { findViewById<TextView>(R.id.trackNameTextView) }
     private val listenersTextView by lazy { findViewById<TextView>(R.id.listenersTextView) }
@@ -31,10 +34,10 @@ class PopularTrackItemView @JvmOverloads constructor(
         inflate(context, R.layout.item_popular_track, this)
     }
 
-    fun setItem(track: PopularTrack, position: Int) {
+    fun setItem(track: Audio, position: Int) {
         trackNumberTextView.text = (position + 1).toString()
-        trackNameTextView.text = track.name
-        listenersTextView.text = track.listenerCount?.let {
+        trackNameTextView.text = track.title
+        listenersTextView.text = track.listenCount?.let {
             formatListeners(it)
         } ?: ""
     }
