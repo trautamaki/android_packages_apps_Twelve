@@ -27,9 +27,11 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.lineageos.twelve.R
 import org.lineageos.twelve.ext.getParcelable
@@ -49,6 +51,8 @@ import org.lineageos.twelve.ui.views.HorizontalMediaItemView
 import org.lineageos.twelve.utils.PermissionsChecker
 import org.lineageos.twelve.utils.PermissionsUtils
 import org.lineageos.twelve.viewmodels.ArtistViewModel
+import kotlin.collections.emptyList
+import kotlin.math.abs
 
 /**
  * Single artist viewer.
@@ -71,8 +75,11 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
     private val linearProgressIndicator by getViewProperty<LinearProgressIndicator>(R.id.linearProgressIndicator)
     private val nestedScrollView by getViewProperty<NestedScrollView>(R.id.nestedScrollView)
     private val noElementsNestedScrollView by getViewProperty<NestedScrollView>(R.id.noElementsNestedScrollView)
-    private val playArtistTracksExtendedFloatingActionButton by getViewProperty<ExtendedFloatingActionButton>(
-        R.id.playArtistTracksExtendedFloatingActionButton
+    private val playFloatingActionButton by getViewProperty<FloatingActionButton>(
+        R.id.playFloatingActionButton
+    )
+    private val shuffleFloatingActionButton by getViewProperty<FloatingActionButton>(
+        R.id.shuffleFloatingActionButton
     )
     private val thumbnailImageView by getViewProperty<ImageView>(R.id.thumbnailImageView)
     private val toolbar by getViewProperty<MaterialToolbar>(R.id.toolbar)
@@ -144,6 +151,39 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        toolbar.menu.findItem(R.id.action_play)?.isVisible = false
+        toolbar.menu.findItem(R.id.action_shuffle)?.isVisible = false
+
+        appBarLayout.addOnOffsetChangedListener(
+            AppBarLayout.OnOffsetChangedListener { appBar, verticalOffset ->
+                val isCollapsed = abs(verticalOffset) >= appBar.totalScrollRange
+
+                // show in toolbar only when collapsed
+                toolbar.menu.findItem(R.id.action_play)?.isVisible = isCollapsed
+                toolbar.menu.findItem(R.id.action_shuffle)?.isVisible = isCollapsed
+
+                // hide label buttons when collapsed
+                playFloatingActionButton.isVisible = !isCollapsed
+                shuffleFloatingActionButton.isVisible = !isCollapsed
+            }
+        )
+
+        toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_play -> {
+                    play()
+                    true
+                }
+
+                R.id.action_shuffle -> {
+                    shufflePlay()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
         // Insets
         ViewCompat.setOnApplyWindowInsetsListener(toolbar) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
@@ -192,15 +232,13 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
             windowInsets
         }
 
-        playArtistTracksExtendedFloatingActionButton.setOnClickListener {
-            lifecycleScope.launch {
-                viewModel.artistTracks.collectLatest { requestStatus ->
-                    if (requestStatus is FlowResult.Success) {
-                        val tracks = requestStatus.data.items.filterIsInstance<Audio>()
-                        viewModel.playAudio(tracks.shuffled(), 0)
-                    }
-                }
-            }
+        // Play top songs, then rest of artists songs
+        playFloatingActionButton.setOnClickListener {
+            play()
+        }
+
+        shuffleFloatingActionButton.setOnClickListener {
+            shufflePlay()
         }
 
         toolbar.setupWithNavController(findNavController())
@@ -291,6 +329,24 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
                         // Get out of here
                         findNavController().navigateUp()
                     }
+                }
+            }
+        }
+    }
+
+    private fun play() {
+        viewModel.artistTracks.value
+            .let { it as? FlowResult.Success }
+            ?.data?.items?.filterIsInstance<Audio>()
+            ?.let { tracks -> viewModel.playAudio(tracks, 0) }
+    }
+
+    private fun shufflePlay() {
+        lifecycleScope.launch {
+            viewModel.artistTracks.collectLatest { requestStatus ->
+                if (requestStatus is FlowResult.Success) {
+                    val tracks = requestStatus.data.items.filterIsInstance<Audio>()
+                    viewModel.playAudio(tracks.shuffled(), 0)
                 }
             }
         }

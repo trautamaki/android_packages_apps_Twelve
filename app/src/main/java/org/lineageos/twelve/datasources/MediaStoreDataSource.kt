@@ -308,28 +308,32 @@ class MediaStoreDataSource(
     }
 
     override fun artistTracks(
-        providerIdentifier: ProviderIdentifier, artistUri: Uri
-    ) = providersManager.flatMapWithInstanceOf(providerIdentifier) {
+        providerIdentifier: ProviderIdentifier,
+        artistUri: Uri,
+    ) = withVolumeName(artistUri) { volumeName ->
         val artistId = ContentUris.parseId(artistUri)
 
         contentResolver.queryFlow(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            getAudiosUri(volumeName),
             audiosProjection,
             bundleOf(
-                ContentResolver.QUERY_ARG_SQL_SELECTION to "${MediaStore.Audio.Media.ARTIST_ID} = ?",
+                ContentResolver.QUERY_ARG_SQL_SELECTION to query {
+                    MediaStore.Audio.AudioColumns.ARTIST_ID eq Query.ARG
+                },
                 ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS to arrayOf(artistId.toString()),
-                ContentResolver.QUERY_ARG_SORT_COLUMNS to arrayOf(MediaStore.Audio.Media.TRACK)
+                ContentResolver.QUERY_ARG_SORT_COLUMNS to arrayOf(MediaStore.Audio.AudioColumns.TRACK),
             )
         )
-            .mapEachRowToAudio()
+            .mapEachRowToAudio(volumeName)
             .mapLatest { tracks ->
-                val activityTab = ActivityTab(
-                    "${tracks[0].artistName}_tracks",
-                    LocalizedString.StringLocalizedString(tracks[0].artistName ?: ""),
-                    tracks
+                if (tracks.isEmpty()) return@mapLatest Result.Error(Error.NOT_FOUND)
+                Result.Success(
+                    ActivityTab(
+                        "${tracks[0].artistName}_tracks",
+                        LocalizedString.StringLocalizedString(tracks[0].artistName ?: ""),
+                        tracks
+                    )
                 )
-
-                Result.Success(activityTab)
             }
     }
 

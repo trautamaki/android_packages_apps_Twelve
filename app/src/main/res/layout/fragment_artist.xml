@@ -77,8 +77,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:elevation="0dp"
+                app:menu="@menu/fragment_artist_toolbar"
                 app:layout_collapseMode="pin"
                 app:layout_scrollFlags="scroll|enterAlways|snap"
+                app:titleTextColor="@android:color/white"
                 tools:title="Ryuichi Sakamoto" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -97,19 +99,5 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/playArtistTracksExtendedFloatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="18dp"
-        android:tooltipText="@string/shuffle_play"
-        android:layout_gravity="bottom|end"
-        app:backgroundTint="?attr/colorTertiaryContainer"
-        app:collapsedSize="46dp"
-        app:icon="@drawable/ic_shuffle_play"
-        app:iconTint="?attr/colorOnTertiaryContainer"
-        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
