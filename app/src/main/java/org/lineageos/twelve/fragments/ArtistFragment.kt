@@ -110,21 +110,20 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
     }
 
     private val createPopularTrackAdapter = {
-        object : SimpleListAdapter<PopularTrack, PopularTrackItemView>(
+        object : SimpleListAdapter<Audio, PopularTrackItemView>(
             UniqueItemDiffCallback(),
             ::PopularTrackItemView,
         ) {
-            override fun ViewHolder.onBindView(item: PopularTrack) {
+            override fun ViewHolder.onBindView(item: Audio) {
                 view.setItem(item, bindingAdapterPosition)
 
                 view.setOnClickListener {
-                    // play via Jellyfin item ID
+                    viewModel.playAudio(item)
                 }
 
-                // TODO
-                /*view.binding.playButton.setOnClickListener {
-                    // play via Jellyfin item ID
-                }*/
+                view.playButton.setOnClickListener {
+                    viewModel.playAudio(item)
+                }
             }
         }
     }
@@ -314,7 +313,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
                 }
 
                 launch {
-                    viewModel.popularTracks.collectLatest { result ->
+                    viewModel.enrichedPopularTracks.collectLatest { result ->
                         when (result) {
                             is FlowResult.Loading -> {}
 
