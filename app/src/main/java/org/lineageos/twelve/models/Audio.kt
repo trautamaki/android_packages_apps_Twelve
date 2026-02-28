@@ -52,6 +52,7 @@ data class Audio(
     val genreName: String?,
     val year: Int?,
     val isFavorite: Boolean,
+    val listenCount: Int? = null,
 ) : MediaItem<Audio> {
     enum class Type(
         val media3MediaType: @MediaMetadata.MediaType Int,
