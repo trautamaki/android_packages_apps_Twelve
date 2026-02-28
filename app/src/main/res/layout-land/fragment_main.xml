@@ -66,6 +66,7 @@
         android:contentDescription="@string/play_random_songs"
         android:text="@string/play_random_songs"
         android:tooltipText="@string/play_random_songs"
+        android:visibility="gone"
         app:collapsedSize="46dp"
         app:icon="@drawable/ic_shuffle_play"
         app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
