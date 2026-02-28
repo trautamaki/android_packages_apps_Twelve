@@ -19,6 +19,7 @@ import kotlinx.coroutines.MainScope
 import org.lineageos.twelve.database.TwelveDatabase
 import org.lineageos.twelve.datasources.lastfm.LastfmClient
 import org.lineageos.twelve.ext.lastfmApiKey
+import org.lineageos.twelve.repositories.LastfmCache
 import org.lineageos.twelve.repositories.LastfmRepository
 import org.lineageos.twelve.repositories.MediaRepository
 import org.lineageos.twelve.repositories.OutputConfigurationRepository
@@ -44,7 +45,8 @@ class TwelveApplication : Application(), SingletonImageLoader.Factory {
         LastfmRepository(
             client = LastfmClient(
                 server = "https://ws.audioscrobbler.com",
-                apiKeyProvider = { sharedPreferences.lastfmApiKey })
+                apiKeyProvider = { sharedPreferences.lastfmApiKey }),
+            cache = LastfmCache(this)
         )
     }
     val resumptionPlaylistRepository by lazy { ResumptionPlaylistRepository(database) }
