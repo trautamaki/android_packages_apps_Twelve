@@ -198,3 +198,10 @@ var SharedPreferences.playlistsSortingRule: SortingRule
         PLAYLISTS_SORTING_REVERSE_KEY,
         value
     )
+
+const val LASTFM_API_KEY_KEY = "lastfm_api_key"
+var SharedPreferences.lastfmApiKey: String
+    get() = getString(LASTFM_API_KEY_KEY, "") ?: ""
+    set(value) = edit {
+        putString(LASTFM_API_KEY_KEY, value)
+    }

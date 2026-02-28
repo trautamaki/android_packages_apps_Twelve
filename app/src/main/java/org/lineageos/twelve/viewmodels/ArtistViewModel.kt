@@ -14,10 +14,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import org.lineageos.twelve.datasources.lastfm.models.toPopularTrack
 import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.FlowResult.Companion.asFlowResult
+import org.lineageos.twelve.models.FlowResult.Companion.flatMapLatestData
+import org.lineageos.twelve.models.FlowResult.Companion.mapLatestData
 
 class ArtistViewModel(application: Application) : TwelveViewModel(application) {
     private val artistUri = MutableStateFlow<Uri?>(null)
@@ -53,4 +57,27 @@ class ArtistViewModel(application: Application) : TwelveViewModel(application) {
             SharingStarted.WhileSubscribed(),
             FlowResult.Loading()
         )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val popularTracks =
+        artist.flatMapLatestData { (artist, _) ->
+            artist.name?.let { artistName ->
+                lastfmRepository
+                    .popularTracksByArtist(artistName)
+                    .mapLatestData { queryResult ->
+                        queryResult.toptracks
+                            ?.track
+                            ?.map { it.toPopularTrack() }
+                            ?: emptyList()
+                    }
+            } ?: flowOf(
+                FlowResult.Success(emptyList())
+            )
+        }
+            .flowOn(Dispatchers.IO)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                FlowResult.Loading()
+            )
 }

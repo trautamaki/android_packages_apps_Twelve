@@ -41,6 +41,7 @@ import org.lineageos.twelve.utils.AudioPreloader
 abstract class TwelveViewModel(application: Application) : AndroidViewModel(application) {
     protected val mediaRepository = getApplication<TwelveApplication>().mediaRepository
     protected val providersRepository = getApplication<TwelveApplication>().providersRepository
+    protected val lastfmRepository = getApplication<TwelveApplication>().lastfmRepository
     protected val outputConfigurationRepository =
         getApplication<TwelveApplication>().outputConfigurationRepository
 

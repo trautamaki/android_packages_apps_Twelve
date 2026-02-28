@@ -339,4 +339,12 @@
     <string name="favorites_playlist">Favorites</string>
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="artist_popular_tracks_header">Popular tracks</string>
+    <string name="provider_argument_discovery_server">Discovery server</string>
+    <string name="last_fm">Last.fm</string>
+    <string name="last_fm_server">Last.fm server</string>
+    <string name="provider_arg_api_key">Last.fm API key</string>
+    <string name="last_fm_api_key">Last.fm API key</string>
+    <string name="lastfm_api_key_title">Last.fm API key</string>
+    <string name="lastfm_api_key_summary">If set, app enables feature for global statistics etc.</string>
 </resources>
