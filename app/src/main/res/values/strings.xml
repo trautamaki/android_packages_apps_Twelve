@@ -347,4 +347,6 @@
     <string name="last_fm_api_key">Last.fm API key</string>
     <string name="lastfm_api_key_title">Last.fm API key</string>
     <string name="lastfm_api_key_summary">If set, app enables feature for global statistics etc.</string>
+    <string name="lastfm_global_trending_artists">Globally trending artists</string>
+    <string name="lastfm_local_trending_artists">Locally trending artists</string>
 </resources>
