@@ -322,6 +322,17 @@ class JellyfinClient(
         )
     ).execute(api).mapToError()
 
+    suspend fun trendingPlaylists() = ApiRequest.get<QueryResult>(
+        listOf("Items"),
+        queryParameters = listOf(
+            "IncludeItemTypes" to "Playlist",
+            "Tags" to "trending",
+            "Recursive" to true,
+            "SortBy" to "SortName",
+            "SortOrder" to "Ascending",
+        )
+    ).execute(api).mapToError()
+
     suspend fun artistSuggestions() = ApiRequest.get<QueryResult>(
         listOf(
             "Items",
