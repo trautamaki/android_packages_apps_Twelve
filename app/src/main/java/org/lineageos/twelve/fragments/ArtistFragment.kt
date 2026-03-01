@@ -65,6 +65,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
     // Views
     private val albumsLinearLayout by getViewProperty<LinearLayout>(R.id.albumsLinearLayout)
     private val albumsRecyclerView by getViewProperty<RecyclerView>(R.id.albumsRecyclerView)
+    private val artistButtonsLinearLayout by getViewProperty<LinearLayout>(R.id.artistButtonsLinearLayout)
     private val popularTracksLinearLayout by getViewProperty<LinearLayout>(R.id.popularTracksLinearLayout)
     private val popularTracksRecyclerView by getViewProperty<RecyclerView>(R.id.popularTracksRecyclerView)
     override val appBarLayout by getViewProperty<AppBarLayout>(R.id.appBarLayout)
@@ -180,19 +181,17 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
         toolbar.menu.findItem(R.id.action_play)?.isVisible = false
         toolbar.menu.findItem(R.id.action_shuffle)?.isVisible = false
 
-        appBarLayout.addOnOffsetChangedListener(
-            AppBarLayout.OnOffsetChangedListener { appBar, verticalOffset ->
-                val isCollapsed = abs(verticalOffset) >= appBar.totalScrollRange
+        appBarLayout.addOnOffsetChangedListener { appBar, verticalOffset ->
+            val isCollapsed = abs(verticalOffset) >= appBar.totalScrollRange
 
-                // show in toolbar only when collapsed
-                toolbar.menu.findItem(R.id.action_play)?.isVisible = isCollapsed
-                toolbar.menu.findItem(R.id.action_shuffle)?.isVisible = isCollapsed
+            // show in toolbar only when collapsed
+            toolbar.menu.findItem(R.id.action_play)?.isVisible = isCollapsed
+            toolbar.menu.findItem(R.id.action_shuffle)?.isVisible = isCollapsed
 
-                // hide label buttons when collapsed
-                playFloatingActionButton.isVisible = !isCollapsed
-                shuffleFloatingActionButton.isVisible = !isCollapsed
-            }
-        )
+            // hide label buttons when collapsed
+            playFloatingActionButton.isVisible = !isCollapsed
+            shuffleFloatingActionButton.isVisible = !isCollapsed
+        }
 
         toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
@@ -337,6 +336,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
                             is FlowResult.Loading -> Unit
 
                             is FlowResult.Success -> {
+                                artistButtonsLinearLayout.isVisible = true
                                 val (artist, artistWorks) = it.data
 
                                 artist.name?.also { artistName ->
@@ -374,8 +374,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
 
                                 nestedScrollView.isVisible = !isEmpty
                                 noElementsNestedScrollView.isVisible = isEmpty
-                                playFloatingActionButton.isVisible = true
-                                shuffleFloatingActionButton.isVisible = true
+                                artistButtonsLinearLayout.isVisible = true
                             }
 
                             is FlowResult.Error -> {
