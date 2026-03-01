@@ -61,7 +61,6 @@ class MediaItemBottomSheetDialogFragment : TwelveBottomSheetDialogFragment(
     private val placeholderImageView by getViewProperty<ImageView>(R.id.placeholderImageView)
     private val playNowListItem by getViewProperty<ListItem>(R.id.playNowListItem)
     private val playNextListItem by getViewProperty<ListItem>(R.id.playNextListItem)
-    private val removeFromPlaylistListItem by getViewProperty<ListItem>(R.id.removeFromPlaylistListItem)
     private val thumbnailImageView by getViewProperty<ImageView>(R.id.thumbnailImageView)
     private val titleTextView by getViewProperty<TextView>(R.id.titleTextView)
 
@@ -120,16 +119,6 @@ class MediaItemBottomSheetDialogFragment : TwelveBottomSheetDialogFragment(
             viewLifecycleOwner.lifecycleScope.launch {
                 fullscreenLoadingProgressBar.withProgress {
                     viewModel.toggleFavorites()
-                }
-            }
-        }
-
-        removeFromPlaylistListItem.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                fullscreenLoadingProgressBar.withProgress {
-                    viewModel.removeAudioFromPlaylist()
-
-                    findNavController().navigateUp()
                 }
             }
         }
@@ -304,12 +293,6 @@ class MediaItemBottomSheetDialogFragment : TwelveBottomSheetDialogFragment(
         launch {
             viewModel.canAddOrRemoveFromPlaylists.collectLatest { canAddOrRemoveFromPlaylists ->
                 addOrRemoveFromPlaylistsListItem.isVisible = canAddOrRemoveFromPlaylists
-            }
-        }
-
-        launch {
-            viewModel.canRemoveFromPlaylist.collectLatest { canRemoveFromPlaylist ->
-                removeFromPlaylistListItem.isVisible = canRemoveFromPlaylist
             }
         }
 
