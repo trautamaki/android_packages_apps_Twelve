@@ -300,21 +300,21 @@ class JellyfinDataSource(
     override fun activity(
         providerIdentifier: ProviderIdentifier,
     ) = providersManager.mapWithInstanceOf(providerIdentifier) {
+        val trendingPlaylists = client.trendingPlaylists().map { queryResult ->
+            ActivityTab(
+                "trending_playlists",
+                LocalizedString.StringResIdLocalizedString(
+                    R.string.activity_trending,
+                ),
+                queryResult.items.map { it.toMediaItemPlaylist() }
+            )
+        }
+
         val frequentlyPlayedSongs = client.frequentlyPlayedAudio().map { queryResult ->
             ActivityTab(
                 "frequently_played_songs",
                 LocalizedString.StringResIdLocalizedString(
                     R.string.activity_most_played_songs,
-                ),
-                queryResult.items.map { it.toMediaItemAudio() }
-            )
-        }
-
-        val randomSongs = client.audioSuggestions().map { queryResult ->
-            ActivityTab(
-                "random_songs",
-                LocalizedString.StringResIdLocalizedString(
-                    R.string.activity_random_songs,
                 ),
                 queryResult.items.map { it.toMediaItemAudio() }
             )
@@ -330,33 +330,11 @@ class JellyfinDataSource(
             )
         }
 
-        val randomArtists = client.artistSuggestions().map { queryResult ->
-            ActivityTab(
-                "random_artists",
-                LocalizedString.StringResIdLocalizedString(
-                    R.string.activity_random_artists,
-                ),
-                queryResult.items.map { it.toMediaItemArtist() }
-            )
-        }
-
-        val randomPlaylists = client.playlistSuggestions().map { queryResult ->
-            ActivityTab(
-                "random_playlists",
-                LocalizedString.StringResIdLocalizedString(
-                    R.string.activity_random_playlists,
-                ),
-                queryResult.items.map { it.toMediaItemPlaylist() }
-            )
-        }
-
         Result.Success(
             listOf(
+                trendingPlaylists,
                 frequentlyPlayedSongs,
-                randomSongs,
                 randomAlbums,
-                randomArtists,
-                randomPlaylists,
             ).mapNotNull {
                 it.getOrNull()?.takeIf { activityTab ->
                     activityTab.items.isNotEmpty()

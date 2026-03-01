@@ -346,4 +346,5 @@
     <string name="lastfm_api_key_summary">If set, app enables features for global statistics etc.</string>
     <string name="lastfm_global_trending_artists">Globally trending artists</string>
     <string name="lastfm_local_trending_artists">Locally trending artists</string>
+    <string name="activity_trending">Trending</string>
 </resources>
