@@ -121,15 +121,23 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
             ::PopularTrackItemView,
         ) {
             override fun ViewHolder.onBindView(item: Audio) {
+                listOf(view, view.playButton).forEach { clickable ->
+                    clickable.setOnClickListener {
+                        viewModel.playAudio(listOf(item), 0)
+                    }
+                }
+                view.setOnLongClickListener {
+                    findNavController().navigateSafe(
+                        R.id.action_artistFragment_to_fragment_media_item_bottom_sheet_dialog,
+                        MediaItemBottomSheetDialogFragment.createBundle(
+                            item.uri,
+                            fromArtist = true,
+                        )
+                    )
+                    true
+                }
+
                 view.setItem(item, bindingAdapterPosition)
-
-                view.setOnClickListener {
-                    viewModel.playAudio(listOf(item), 0)
-                }
-
-                view.playButton.setOnClickListener {
-                    viewModel.playAudio(listOf(item), 0)
-                }
             }
         }
     }
