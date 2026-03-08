@@ -42,6 +42,7 @@ import org.lineageos.twelve.ext.setProgressCompat
 import org.lineageos.twelve.ext.updatePadding
 import org.lineageos.twelve.models.Album
 import org.lineageos.twelve.models.Audio
+import org.lineageos.twelve.models.Error
 import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.Playlist
 import org.lineageos.twelve.ui.recyclerview.SimpleListAdapter
@@ -361,23 +362,34 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
                                 val isAppearsInAlbumEmpty = artistWorks.appearsInAlbum.isEmpty()
                                 appearsInAlbumLinearLayout.isVisible = !isAppearsInAlbumEmpty
 
-                                val isAppearsInPlaylistEmpty =
-                                    artistWorks.appearsInPlaylist.isEmpty()
+                                val isAppearsInPlaylistEmpty = artistWorks.appearsInPlaylist.isEmpty()
                                 appearsInPlaylistLinearLayout.isVisible = !isAppearsInPlaylistEmpty
 
                                 val isEmpty = listOf(
                                     isAlbumsEmpty,
                                     isAppearsInAlbumEmpty,
                                     isAppearsInPlaylistEmpty,
-                                ).all { empty -> empty }
-
+                                ).all { isEmpty -> isEmpty }
                                 nestedScrollView.isVisible = !isEmpty
                                 noElementsNestedScrollView.isVisible = isEmpty
-                                artistButtonsLinearLayout.isVisible = true
                             }
 
                             is FlowResult.Error -> {
-                                Log.e(LOG_TAG, "Error loading artist", it.throwable)
+                                Log.e(LOG_TAG, "Error loading artist, error: ${it.error}", it.throwable)
+
+                                toolbar.title = ""
+
+                                albumsAdapter.submitList(listOf())
+                                appearsInAlbumAdapter.submitList(listOf())
+                                appearsInPlaylistAdapter.submitList(listOf())
+
+                                nestedScrollView.isVisible = false
+                                noElementsNestedScrollView.isVisible = true
+
+                                if (it.error == Error.NOT_FOUND) {
+                                    // Get out of here
+                                    findNavController().navigateUp()
+                                }
                             }
                         }
                     }

@@ -340,13 +340,10 @@
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="artist_popular_tracks_header">Popular tracks</string>
-    <string name="provider_argument_discovery_server">Discovery server</string>
-    <string name="last_fm">Last.fm</string>
-    <string name="last_fm_server">Last.fm server</string>
-    <string name="provider_arg_api_key">Last.fm API key</string>
-    <string name="last_fm_api_key">Last.fm API key</string>
+
+    <!-- Last.fm -->
     <string name="lastfm_api_key_title">Last.fm API key</string>
-    <string name="lastfm_api_key_summary">If set, app enables feature for global statistics etc.</string>
+    <string name="lastfm_api_key_summary">If set, app enables features for global statistics etc.</string>
     <string name="lastfm_global_trending_artists">Globally trending artists</string>
     <string name="lastfm_local_trending_artists">Locally trending artists</string>
     <string name="activity_trending">Trending</string>

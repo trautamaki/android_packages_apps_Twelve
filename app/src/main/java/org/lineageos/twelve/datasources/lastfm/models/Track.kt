@@ -8,9 +8,6 @@ data class Track(
     @SerialName("name")
     val name: String? = null,
 
-    @SerialName("listeners")
-    val listeners: String? = null,
-
     @SerialName("playcount")
     val playcount: Int? = null,
 
