@@ -15,7 +15,6 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.core.net.toUri
-import androidx.core.os.bundleOf
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
@@ -57,6 +56,7 @@ import kotlinx.coroutines.withContext
 import org.lineageos.twelve.MainActivity
 import org.lineageos.twelve.R
 import org.lineageos.twelve.TwelveApplication
+import org.lineageos.twelve.ext.Bundle
 import org.lineageos.twelve.ext.enableFloatOutput
 import org.lineageos.twelve.ext.enableOffload
 import org.lineageos.twelve.ext.mapAsync
@@ -118,7 +118,9 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
                     .setSessionCommand(
                         SessionCommand(
                             name,
-                            bundleOf(ARG_VALUE to !shuffleModeEnabled),
+                            Bundle {
+                                putBoolean(ARG_VALUE, !shuffleModeEnabled)
+                            },
                         )
                     )
                     .build()
@@ -147,7 +149,9 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
                     .setSessionCommand(
                         SessionCommand(
                             name,
-                            bundleOf(ARG_VALUE to repeatMode.next().name),
+                            Bundle {
+                                putString(ARG_VALUE, repeatMode.next().name)
+                            },
                         )
                     )
                     .build()
@@ -415,7 +419,9 @@ class PlaybackService : MediaLibraryService(), LifecycleOwner {
                 CustomCommand.GET_AUDIO_SESSION_ID -> {
                     SessionResult(
                         SessionResult.RESULT_SUCCESS,
-                        bundleOf(CustomCommand.RSP_VALUE to player.audioSessionId),
+                        Bundle {
+                            putInt(CustomCommand.RSP_VALUE, player.audioSessionId)
+                        },
                     )
                 }
 
