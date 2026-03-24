@@ -8,6 +8,7 @@ package org.lineageos.twelve.models
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import org.lineageos.twelve.R
+import org.lineageos.twelve.datasources.AmpacheDataSource
 import org.lineageos.twelve.datasources.JellyfinDataSource
 import org.lineageos.twelve.datasources.MediaDataSource
 import org.lineageos.twelve.datasources.SubsonicDataSource
@@ -82,9 +83,9 @@ enum class ProviderType(
         R.string.provider_type_ampache,
         R.drawable.ic_hdr_auto,
         listOf(
-            JellyfinDataSource.ARG_SERVER,
-            JellyfinDataSource.ARG_USERNAME,
-            JellyfinDataSource.ARG_PASSWORD,
+            AmpacheDataSource.ARG_SERVER,
+            AmpacheDataSource.ARG_USERNAME,
+            AmpacheDataSource.ARG_PASSWORD,
         ),
         true,
     ),
