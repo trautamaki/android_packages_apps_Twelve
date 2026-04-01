@@ -170,4 +170,6 @@
     <string name="jellyfin_version">Versioni</string>
     <string name="jellyfin_product_name">Emri i produktit</string>
     <string name="jellyfin_operating_system">Sistemi operativ</string>
+    <string name="ampache_server">Server</string>
+    <string name="ampache_version">Versioni</string>
 </resources>

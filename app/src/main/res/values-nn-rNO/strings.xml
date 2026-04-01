@@ -209,6 +209,8 @@
     <string name="jellyfin_version">Versjon</string>
     <string name="jellyfin_product_name">Produktnamn</string>
     <string name="jellyfin_operating_system">Operativsystem</string>
+    <string name="ampache_server">Tenar</string>
+    <string name="ampache_version">Versjon</string>
     <string name="playlist_name">Namn</string>
     <string name="provider">Kjelde</string>
     <string name="create_playlist_error_empty_name">Du må oppgje eit namn</string>
