@@ -120,6 +120,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 when (item) {
                     is Album -> {
                         view.setOnClickListener {
+                            viewModel.addHistoryItem(searchView.editText.text.toString())
                             findNavController().navigateSafe(
                                 R.id.action_mainFragment_to_fragment_album,
                                 AlbumFragment.createBundle(item.uri)
@@ -133,6 +134,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
                     is Artist -> {
                         view.setOnClickListener {
+                            viewModel.addHistoryItem(searchView.editText.text.toString())
                             findNavController().navigateSafe(
                                 R.id.action_mainFragment_to_fragment_artist,
                                 ArtistFragment.createBundle(item.uri)
@@ -146,6 +148,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
                     is Audio -> {
                         view.setOnClickListener {
+                            viewModel.addHistoryItem(searchView.editText.text.toString())
                             findNavController().navigateSafe(
                                 R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
                                 MediaItemBottomSheetDialogFragment.createBundle(item.uri)
@@ -159,6 +162,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
                     is Genre -> {
                         view.setOnClickListener {
+                            viewModel.addHistoryItem(searchView.editText.text.toString())
                             findNavController().navigateSafe(
                                 R.id.action_mainFragment_to_fragment_genre,
                                 GenreFragment.createBundle(item.uri)
@@ -172,6 +176,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
                     is Playlist -> {
                         view.setOnClickListener {
+                            viewModel.addHistoryItem(searchView.editText.text.toString())
                             findNavController().navigateSafe(
                                 R.id.action_mainFragment_to_fragment_playlist,
                                 PlaylistFragment.createBundle(item.uri)
@@ -182,6 +187,31 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                         view.headlineText = item.name
                         view.supportingText = null
                     }
+                }
+            }
+        }
+    }
+
+    private val historyAdapter by lazy {
+        object : SimpleListAdapter<String, ListItem>(
+            object : DiffUtil.ItemCallback<String>() {
+                override fun areItemsTheSame(oldItem: String, newItem: String) =
+                    oldItem == newItem
+
+                override fun areContentsTheSame(oldItem: String, newItem: String) =
+                    oldItem == newItem
+            },
+            ::ListItem
+        ) {
+            override fun ViewHolder.onBindView(item: String) {
+                view.setLeadingIconImage(R.drawable.ic_history)
+                view.headlineText = item
+                view.supportingText = null
+
+                view.setOnClickListener {
+                    searchView.editText.setText(item)
+                    searchView.editText.setSelection(item.length)
+                    viewModel.setSearchQuery(item, true)
                 }
             }
         }
@@ -379,10 +409,22 @@ class MainFragment : Fragment(R.layout.fragment_main) {
         }
 
         // Search
-        searchRecyclerView.adapter = searchAdapter
+        searchRecyclerView.adapter = historyAdapter
 
         searchView.editText.addTextChangedListener { text ->
             viewModel.setSearchQuery(text.toString())
+
+            if (text.isNullOrEmpty()) {
+                searchRecyclerView.adapter = historyAdapter
+                historyAdapter.submitList(viewModel.searchHistory.value)
+                searchRecyclerView.isVisible = viewModel.searchHistory.value.isNotEmpty()
+                searchNoElementsLinearLayout.isVisible = false
+            } else {
+                searchRecyclerView.adapter = searchAdapter
+                searchAdapter.submitList(listOf())
+                searchRecyclerView.isVisible = false
+                searchNoElementsLinearLayout.isVisible = false
+            }
         }
         searchView.editText.setOnEditorActionListener { _, _, _ ->
             inputMethodManager.scheduleHideSoftInput(searchView.editText, 0)
@@ -406,7 +448,26 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                 }
 
                 launch {
+                    viewModel.searchHistory.collectLatest { history ->
+                        // Only apply history when search box is empty
+                        if (searchView.editText.text.isEmpty()) {
+                            searchRecyclerView.adapter = historyAdapter
+                            historyAdapter.submitList(history)
+                            searchRecyclerView.isVisible = history.isNotEmpty()
+                            searchNoElementsLinearLayout.isVisible = false
+                            searchLinearProgressIndicator.hide()
+                        }
+                    }
+                }
+
+                launch {
                     viewModel.searchResults.collectLatest {
+                        val query = searchView.editText.text
+
+                        if (query.isEmpty()) {
+                            return@collectLatest
+                        }
+
                         searchLinearProgressIndicator.setProgressCompat(it)
 
                         when (it) {
@@ -415,12 +476,12 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                             }
 
                             is FlowResult.Success -> {
+                                searchRecyclerView.adapter = searchAdapter
                                 searchAdapter.submitList(it.data)
 
                                 val isEmpty = it.data.isEmpty()
                                 searchRecyclerView.isVisible = !isEmpty
-                                searchNoElementsLinearLayout.isVisible =
-                                    isEmpty && searchView.editText.text.isNotEmpty()
+                                searchNoElementsLinearLayout.isVisible = isEmpty
                             }
 
                             is FlowResult.Failure -> {
