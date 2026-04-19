@@ -230,3 +230,11 @@ fun SharedPreferences.addSearchQuery(query: String) {
         .distinct()
         .take(SEARCH_HISTORY_LIMIT)
 }
+
+fun SharedPreferences.removeSearchQuery(query: String) {
+    val trimmed = query.trim()
+    if (trimmed.isEmpty()) return
+
+    searchHistory = searchHistory
+        .filter { it != trimmed }
+}
