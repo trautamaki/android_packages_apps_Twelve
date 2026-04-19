@@ -12,20 +12,23 @@ import java.util.concurrent.TimeUnit
 class LastfmRepository(
     private val client: LastfmClient,
     private val cache: LastfmCache,
+    val json: Json = Json {
+        ignoreUnknownKeys = true
+    }
 ) {
     fun popularTracksByArtist(artistName: String) = flow {
         val cacheKey = "popular_$artistName"
         val cached = cache.get(cacheKey)
 
         if (cached != null) {
-            emit(Success(Json.decodeFromString<ArtistTracksQueryResult>(cached)))
+            emit(Success(json.decodeFromString<ArtistTracksQueryResult>(cached)))
             if (!cache.isStale(cacheKey, TimeUnit.HOURS.toMillis(48))) return@flow
         }
 
         try {
             val fresh = client.getPopularTracksByArtist(artistName)
             if (fresh is Success) {
-                cache.put(cacheKey, Json.encodeToString(fresh.data))
+                cache.put(cacheKey, json.encodeToString(fresh.data))
                 emit(fresh)
             }
         } catch (_: Exception) {
@@ -53,14 +56,14 @@ class LastfmRepository(
         val cached = cache.get(cacheKey)
 
         if (cached != null) {
-            emit(Success(Json.decodeFromString<T>(cached)))
+            emit(Success(json.decodeFromString<T>(cached)))
             if (!cache.isStale(cacheKey, maxAgeMs)) return@flow
         }
 
         try {
             val fresh = fetch()
             if (fresh is Success) {
-                cache.put(cacheKey, Json.encodeToString(fresh.data))
+                cache.put(cacheKey, json.encodeToString(fresh.data))
                 emit(fresh)
             }
         } catch (_: Exception) {

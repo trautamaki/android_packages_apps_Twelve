@@ -9,6 +9,7 @@ import android.net.Uri
 import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.mapLatest
@@ -398,6 +399,13 @@ class AmpacheDataSource(
         }
     }
 
+    override fun artistTracks(
+        providerIdentifier: ProviderIdentifier,
+        artistUri: Uri
+    ): Flow<MediaRequestStatus<ActivityTab>> {
+        TODO("Not yet implemented")
+    }
+
     override fun genres(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
@@ -696,6 +704,13 @@ class AmpacheDataSource(
         ).map {
             onFavoritesChanged()
         }
+    }
+
+    override fun getSuggestionsFromAudio(
+        providerIdentifier: ProviderIdentifier,
+        audioUri: Uri
+    ): Flow<MediaRequestStatus<ActivityTab>> {
+        TODO("Not yet implemented")
     }
 
     /**

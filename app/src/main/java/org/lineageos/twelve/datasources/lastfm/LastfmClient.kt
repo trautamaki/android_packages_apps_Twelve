@@ -10,7 +10,7 @@ import org.lineageos.twelve.utils.ApiRequest
 import org.lineageos.twelve.utils.mapToError
 
 class LastfmClient(
-    private val server: String, private val apiKeyProvider: () -> String,
+    server: String, private val apiKeyProvider: () -> String,
 ) {
     private val okHttpClient = OkHttpClient.Builder().build()
 
