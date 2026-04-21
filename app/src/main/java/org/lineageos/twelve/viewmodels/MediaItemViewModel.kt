@@ -84,7 +84,7 @@ class MediaItemViewModel(application: Application) : TwelveViewModel(application
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading(),
+            initialValue = FlowResult.Loading,
         )
 
     val mediaItem = data
@@ -93,7 +93,7 @@ class MediaItemViewModel(application: Application) : TwelveViewModel(application
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading(),
+            initialValue = FlowResult.Loading,
         )
 
     val tracks = data
@@ -124,7 +124,7 @@ class MediaItemViewModel(application: Application) : TwelveViewModel(application
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading(),
+            initialValue = FlowResult.Loading,
         )
 
     val showQueueButtons = combine(

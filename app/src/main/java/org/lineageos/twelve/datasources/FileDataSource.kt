@@ -23,19 +23,10 @@ import org.lineageos.twelve.ext.Bundle
 import org.lineageos.twelve.ext.executeAsync
 import org.lineageos.twelve.ext.mapEachRow
 import org.lineageos.twelve.ext.queryFlow
-import org.lineageos.twelve.models.ActivityTab
-import org.lineageos.twelve.models.Album
-import org.lineageos.twelve.models.Artist
-import org.lineageos.twelve.models.ArtistWorks
 import org.lineageos.twelve.models.Audio
 import org.lineageos.twelve.models.DataSourceInformation
 import org.lineageos.twelve.models.Error
-import org.lineageos.twelve.models.Genre
-import org.lineageos.twelve.models.GenreContent
-import org.lineageos.twelve.models.Lyrics
-import org.lineageos.twelve.models.MediaItem
 import org.lineageos.twelve.models.MediaType
-import org.lineageos.twelve.models.Playlist
 import org.lineageos.twelve.models.ProviderIdentifier
 import org.lineageos.twelve.models.Result
 import org.lineageos.twelve.models.SortingRule
@@ -64,7 +55,7 @@ class FileDataSource(
 
     override fun status(
         providerIdentifier: ProviderIdentifier,
-    ) = flowOf(Result.Success<_, Error>(listOf<DataSourceInformation>()))
+    ) = flowOf(Result.Success(listOf<DataSourceInformation>()))
 
     override suspend fun mediaTypeOf(mediaItemUri: Uri) = getMimeType(mediaItemUri)?.let {
         MimeUtils.mimeTypeToMediaType(it)
@@ -72,46 +63,46 @@ class FileDataSource(
 
     override fun providerOf(
         mediaItemUri: Uri
-    ) = flowOf(Result.Failure<ProviderIdentifier, _>(Error.NOT_FOUND))
+    ) = flowOf(Result.Failure(Error.NOT_FOUND))
 
     override fun activity(
         providerIdentifier: ProviderIdentifier,
-    ) = flowOf(Result.Failure<List<ActivityTab>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     override fun albums(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
-    ) = flowOf(Result.Failure<List<Album>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     override fun artists(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
-    ) = flowOf(Result.Failure<List<Artist>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     override fun audios(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
-    ) = flowOf(Result.Failure<List<Audio>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     override fun genres(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
-    ) = flowOf(Result.Failure<List<Genre>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     override fun playlists(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
-    ) = flowOf(Result.Failure<List<Playlist>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     override fun search(
         providerIdentifier: ProviderIdentifier,
         query: String,
-    ) = flowOf(Result.Failure<List<MediaItem<*>>, _>(Error.NOT_IMPLEMENTED))
+    ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun audio(audioUri: Uri) = when (audioUri.scheme) {
         SCHEME_FILE -> suspend {
-            Result.Success<_, Error>(
+            Result.Success(
                 Audio.Builder(audioUri)
                     .setPlaybackUri(audioUri)
                     .setMimeType(audioUri.determineFileMimeType())
@@ -147,7 +138,7 @@ class FileDataSource(
 
             okHttpClient.newCall(request).executeAsync().use { response ->
                 when (response.isSuccessful) {
-                    true -> Result.Success<_, Error>(
+                    true -> Result.Success(
                         Audio.Builder(audioUri)
                             .setPlaybackUri(audioUri)
                             .setMimeType(response.getContentType())
@@ -161,7 +152,7 @@ class FileDataSource(
         }.asFlow()
 
         SCHEME_RTSP -> suspend {
-            Result.Success<_, Error>(
+            Result.Success(
                 Audio.Builder(audioUri)
                     .setPlaybackUri(audioUri)
                     .build()
@@ -172,60 +163,60 @@ class FileDataSource(
     }
 
     override fun album(albumUri: Uri) = flowOf(
-        Result.Failure<Pair<Album, List<Audio>>, _>(Error.NOT_FOUND)
+        Result.Failure(Error.NOT_FOUND)
     )
 
     override fun artist(artistUri: Uri) = flowOf(
-        Result.Failure<Pair<Artist, ArtistWorks>, _>(Error.NOT_FOUND)
+        Result.Failure(Error.NOT_FOUND)
     )
 
     override fun genre(genreUri: Uri) = flowOf(
-        Result.Failure<Pair<Genre, GenreContent>, _>(Error.NOT_FOUND)
+        Result.Failure(Error.NOT_FOUND)
     )
 
     override fun playlist(playlistUri: Uri) = flowOf(
-        Result.Failure<Pair<Playlist, List<Audio>>, _>(Error.NOT_FOUND)
+        Result.Failure(Error.NOT_FOUND)
     )
 
     override fun audioPlaylistsStatus(audioUri: Uri) = flowOf(
-        Result.Failure<List<Pair<Playlist, Boolean>>, _>(Error.NOT_FOUND)
+        Result.Failure(Error.NOT_FOUND)
     )
 
-    override fun lyrics(audioUri: Uri) = flowOf(Result.Failure<Lyrics, _>(Error.NOT_FOUND))
+    override fun lyrics(audioUri: Uri) = flowOf(Result.Failure(Error.NOT_FOUND))
 
     override suspend fun createPlaylist(
         providerIdentifier: ProviderIdentifier,
         name: String,
-    ) = Result.Failure<Uri, _>(Error.NOT_IMPLEMENTED)
+    ) = Result.Failure(Error.NOT_IMPLEMENTED)
 
     override suspend fun renamePlaylist(
         playlistUri: Uri,
         name: String,
-    ) = Result.Failure<Unit, _>(Error.NOT_FOUND)
+    ) = Result.Failure(Error.NOT_FOUND)
 
     override suspend fun deletePlaylist(
         playlistUri: Uri,
-    ) = Result.Failure<Unit, _>(Error.NOT_FOUND)
+    ) = Result.Failure(Error.NOT_FOUND)
 
     override suspend fun addAudioToPlaylist(
         playlistUri: Uri,
         audioUri: Uri,
-    ) = Result.Failure<Unit, _>(Error.NOT_FOUND)
+    ) = Result.Failure(Error.NOT_FOUND)
 
     override suspend fun removeAudioFromPlaylist(
         playlistUri: Uri,
         audioUri: Uri,
-    ) = Result.Failure<Unit, _>(Error.NOT_FOUND)
+    ) = Result.Failure(Error.NOT_FOUND)
 
     override suspend fun onAudioPlayed(
         audioUri: Uri,
         positionMs: Long,
-    ): MediaRequestStatus<Unit> = Result.Success<_, Error>(Unit)
+    ): MediaRequestStatus<Unit> = Result.Success(Unit)
 
     override suspend fun setFavorite(
         audioUri: Uri,
         isFavorite: Boolean,
-    ) = Result.Failure<Unit, _>(Error.NOT_IMPLEMENTED)
+    ) = Result.Failure(Error.NOT_IMPLEMENTED)
 
     private suspend fun getMimeType(uri: Uri) = withContext(Dispatchers.IO) {
         when (uri.scheme) {

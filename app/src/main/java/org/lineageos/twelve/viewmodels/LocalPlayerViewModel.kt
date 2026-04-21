@@ -43,7 +43,6 @@ import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.PlaybackProgress
 import org.lineageos.twelve.models.PlaybackState
 import org.lineageos.twelve.models.RepeatMode
-import org.lineageos.twelve.models.Thumbnail
 import org.lineageos.twelve.services.TwelveRenderersFactory
 
 /**
@@ -136,9 +135,9 @@ class LocalPlayerViewModel(application: Application) : AndroidViewModel(applicat
         playbackState,
     ) { mediaMetadata, playbackState ->
         when (playbackState) {
-            PlaybackState.BUFFERING -> FlowResult.Loading()
+            PlaybackState.BUFFERING -> FlowResult.Loading
             else -> mediaMetadata.toThumbnail(applicationContext)?.let {
-                FlowResult.Success<Thumbnail, Error>(it)
+                FlowResult.Success(it)
             } ?: FlowResult.Failure(Error.NOT_FOUND)
         }
     }
@@ -146,7 +145,7 @@ class LocalPlayerViewModel(application: Application) : AndroidViewModel(applicat
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading()
+            initialValue = FlowResult.Loading
         )
 
     val playbackProgress = exoPlayer.playbackProgressFlow(eventsFlow)

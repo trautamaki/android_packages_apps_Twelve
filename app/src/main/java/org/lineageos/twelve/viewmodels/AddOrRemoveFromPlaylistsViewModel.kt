@@ -35,7 +35,7 @@ class AddOrRemoveFromPlaylistsViewModel(application: Application) : TwelveViewMo
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -49,7 +49,7 @@ class AddOrRemoveFromPlaylistsViewModel(application: Application) : TwelveViewMo
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -61,7 +61,7 @@ class AddOrRemoveFromPlaylistsViewModel(application: Application) : TwelveViewMo
         .stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     fun loadAudio(audioUri: Uri) {

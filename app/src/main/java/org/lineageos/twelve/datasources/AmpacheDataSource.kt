@@ -682,7 +682,7 @@ class AmpacheDataSource(
     override suspend fun onAudioPlayed(
         audioUri: Uri,
         positionMs: Long,
-    ): MediaRequestStatus<Unit> = Result.Success<_, Error>(Unit)
+    ): MediaRequestStatus<Unit> = Result.Success(Unit)
 
     override suspend fun setFavorite(
         audioUri: Uri,

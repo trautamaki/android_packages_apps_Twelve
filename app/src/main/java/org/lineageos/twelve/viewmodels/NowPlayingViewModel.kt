@@ -143,7 +143,7 @@ open class NowPlayingViewModel(application: Application) : TwelveViewModel(appli
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading()
+            initialValue = FlowResult.Loading
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -358,7 +358,7 @@ open class NowPlayingViewModel(application: Application) : TwelveViewModel(appli
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading()
+            initialValue = FlowResult.Loading
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -395,7 +395,7 @@ open class NowPlayingViewModel(application: Application) : TwelveViewModel(appli
         .stateIn(
             viewModelScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = FlowResult.Loading()
+            initialValue = FlowResult.Loading
         )
 
     @OptIn(ExperimentalCoroutinesApi::class)

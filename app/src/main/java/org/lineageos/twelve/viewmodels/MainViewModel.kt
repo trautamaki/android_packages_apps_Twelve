@@ -56,7 +56,7 @@ class MainViewModel(application: Application) : TwelveViewModel(application) {
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     fun setSearchQuery(query: String, immediate: Boolean = false) {

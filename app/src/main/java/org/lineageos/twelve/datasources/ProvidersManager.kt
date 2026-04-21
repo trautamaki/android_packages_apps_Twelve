@@ -115,7 +115,7 @@ class ProvidersManager<T : ProvidersManager.Instance>(
         providersToInstance.firstNotNullOfOrNull { (provider, instance) ->
             provider.takeIf { instance.isMediaItemCompatible(mediaItemUri) }
         }?.let {
-            Result.Success<_, Error>(it as ProviderIdentifier)
+            Result.Success(it as ProviderIdentifier)
         } ?: Result.Failure(Error.NOT_FOUND)
     }
 

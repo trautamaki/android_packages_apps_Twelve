@@ -33,7 +33,7 @@ class GenreViewModel(application: Application) : TwelveViewModel(application) {
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     fun loadGenre(genreUri: Uri) {

@@ -163,7 +163,7 @@ class Api(
                             }
                         } ?: Result.Success(onEmptyResponse())
                     } else {
-                        Result.Failure<T, ApiError>(
+                        Result.Failure(
                             ApiError.HttpError(response.code),
                             Throwable(response.message)
                         )
@@ -257,6 +257,6 @@ fun ApiError.toError() = when (this) {
 }
 
 fun <T> MethodResult<T>.mapToError() = when (this) {
-    is Result.Success -> Result.Success<T, Error>(data)
+    is Result.Success -> Result.Success(data)
     is Result.Failure -> Result.Failure(error.toError(), throwable)
 }

@@ -585,7 +585,7 @@ class JellyfinDataSource(
     ) = providersManager.doWithInstanceOf(playlistUri) {
         when {
             playlistUri == favoritesUri -> Result.Failure(Error.IO)
-            else -> Result.Failure<Unit, _>(Error.NOT_IMPLEMENTED)
+            else -> Result.Failure(Error.NOT_IMPLEMENTED)
         }
     }
 

@@ -37,7 +37,7 @@ class PlaylistViewModel(application: Application) : TwelveViewModel(application)
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     val playlistMetadataCanBeEdited = playlist

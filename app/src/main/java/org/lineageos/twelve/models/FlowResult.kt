@@ -17,10 +17,26 @@ import kotlin.experimental.ExperimentalTypeInference
 /**
  * A data holder used for flows.
  */
-sealed interface FlowResult<T, E> {
-    class Loading<T, E> : FlowResult<T, E>
-    class Success<T, E>(val data: T) : FlowResult<T, E>
-    class Failure<T, E>(val error: E, val throwable: Throwable? = null) : FlowResult<T, E>
+sealed interface FlowResult<out T, out E> {
+    /**
+     * The result is loading.
+     */
+    data object Loading : FlowResult<Nothing, Nothing>
+
+    /**
+     * The result is ready.
+     *
+     * @param data The obtained data
+     */
+    data class Success<T>(val data: T) : FlowResult<T, Nothing>
+
+    /**
+     * The request failed.
+     *
+     * @param error The error
+     * @param throwable An optional [Throwable] object
+     */
+    data class Failure<E>(val error: E, val throwable: Throwable? = null) : FlowResult<Nothing, E>
 
     companion object {
         /**
@@ -36,9 +52,9 @@ sealed interface FlowResult<T, E> {
          * Convert a flow of [Result] to a flow of [FlowResult].
          */
         @OptIn(ExperimentalCoroutinesApi::class)
-        fun <T, E> Flow<Result<out T, out E>>.asFlowResult() = mapLatest {
+        fun <T, E> Flow<Result<T, E>>.asFlowResult() = mapLatest {
             when (it) {
-                is Result.Success -> Success<T, E>(it.data)
+                is Result.Success -> Success(it.data)
                 is Result.Failure -> Failure(it.error, it.throwable)
             }
         }
@@ -52,12 +68,12 @@ sealed interface FlowResult<T, E> {
          */
         @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTypeInference::class)
         fun <T, E, R> Flow<FlowResult<T, E>>.mapLatestFlowResult(
-            @BuilderInference transform: suspend (value: T) -> FlowResult<R, E>
+            transform: suspend (value: T) -> FlowResult<R, E>
         ) = mapLatest {
             when (it) {
-                is Loading -> Loading()
+                is Loading -> it
                 is Success -> transform(it.data)
-                is Failure -> Failure(it.error, it.throwable)
+                is Failure -> it
             }
         }
 
@@ -70,7 +86,7 @@ sealed interface FlowResult<T, E> {
          */
         @OptIn(ExperimentalTypeInference::class)
         fun <T, E, R> Flow<FlowResult<T, E>>.mapLatestData(
-            @BuilderInference transform: suspend (value: T) -> R
+            transform: suspend (value: T) -> R
         ) = mapLatestFlowResult { Success(transform(it)) }
 
         /**
@@ -79,8 +95,8 @@ sealed interface FlowResult<T, E> {
          */
         @OptIn(ExperimentalTypeInference::class)
         fun <T, E, R> Flow<FlowResult<T, E>>.foldLatest(
-            @BuilderInference onSuccess: suspend (value: T) -> R,
-            @BuilderInference onError: suspend (error: E, throwable: Throwable?) -> R,
+            onSuccess: suspend (value: T) -> R,
+            onError: suspend (error: E, throwable: Throwable?) -> R,
         ) = channelFlow {
             this@foldLatest.collectLatest {
                 when (it) {
@@ -88,8 +104,8 @@ sealed interface FlowResult<T, E> {
                         // Do nothing
                     }
 
-                    is Success -> trySend(onSuccess(it.data))
-                    is Failure -> trySend(onError(it.error, it.throwable))
+                    is Success -> send(onSuccess(it.data))
+                    is Failure -> send(onError(it.error, it.throwable))
                 }
             }
         }

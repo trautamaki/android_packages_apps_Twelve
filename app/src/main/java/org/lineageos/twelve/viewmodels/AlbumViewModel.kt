@@ -40,7 +40,7 @@ class AlbumViewModel(application: Application) : TwelveViewModel(application) {
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     val tracks = album

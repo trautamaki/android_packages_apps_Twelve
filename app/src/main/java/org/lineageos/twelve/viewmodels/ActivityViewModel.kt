@@ -21,6 +21,6 @@ class ActivityViewModel(application: Application) : TwelveViewModel(application)
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading(),
+            FlowResult.Loading,
         )
 }

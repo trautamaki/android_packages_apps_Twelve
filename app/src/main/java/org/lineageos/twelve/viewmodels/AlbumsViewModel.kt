@@ -37,7 +37,7 @@ class AlbumsViewModel(application: Application) : TwelveViewModel(application) {
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            FlowResult.Loading()
+            FlowResult.Loading
         )
 
     fun setSortingRule(sortingRule: SortingRule) {

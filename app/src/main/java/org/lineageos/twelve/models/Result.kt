@@ -8,13 +8,13 @@ package org.lineageos.twelve.models
 /**
  * Result status. This is very similar to Arrow's `Either<A, B>`
  */
-sealed interface Result<T, E> {
+sealed interface Result<out T, out E> {
     /**
      * The result is ready.
      *
      * @param data The obtained data
      */
-    class Success<T, E>(val data: T) : Result<T, E>
+    data class Success<T>(val data: T) : Result<T, Nothing>
 
     /**
      * The request failed.
@@ -22,7 +22,7 @@ sealed interface Result<T, E> {
      * @param error The error
      * @param throwable An optional [Throwable] object
      */
-    class Failure<T, E>(val error: E, val throwable: Throwable? = null) : Result<T, E>
+    data class Failure<E>(val error: E, val throwable: Throwable? = null) : Result<Nothing, E>
 
     companion object {
         /**
@@ -41,7 +41,7 @@ sealed interface Result<T, E> {
             mapping: (T) -> Result<R, E>
         ): Result<R, E> = when (this) {
             is Success -> mapping(data)
-            is Failure -> Failure(error, throwable)
+            is Failure -> this
         }
 
         /**
@@ -61,8 +61,8 @@ sealed interface Result<T, E> {
             block: (T) -> Unit,
         ): R = this.also {
             when (this) {
-                is Success<*, *> -> block(data as T)
-                is Failure<*, *> -> Unit
+                is Success<*> -> block(data as T)
+                is Failure<*> -> Unit
             }
         }
 
@@ -75,8 +75,8 @@ sealed interface Result<T, E> {
             block: (E) -> Unit,
         ): R = this.also {
             when (this) {
-                is Success<*, *> -> Unit
-                is Failure<*, *> -> block(error as E)
+                is Success<*> -> Unit
+                is Failure<*> -> block(error as E)
             }
         }
     }
