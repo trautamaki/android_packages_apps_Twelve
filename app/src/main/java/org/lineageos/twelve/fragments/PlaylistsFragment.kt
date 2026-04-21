@@ -200,7 +200,7 @@ class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
                             noElementsLinearLayout.isVisible = isEmpty
                         }
 
-                        is FlowResult.Error -> {
+                        is FlowResult.Failure -> {
                             Log.e(
                                 LOG_TAG,
                                 "Failed to load playlists, error: ${it.error}",

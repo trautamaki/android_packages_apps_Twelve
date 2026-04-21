@@ -61,5 +61,5 @@ class CreatePlaylistViewModel(application: Application) : TwelveViewModel(applic
         withContext(Dispatchers.IO) {
             mediaRepository.createPlaylist(it, playlistName.value)
         }
-    } ?: Result.Error(Error.IO)
+    } ?: Result.Failure(Error.IO)
 }

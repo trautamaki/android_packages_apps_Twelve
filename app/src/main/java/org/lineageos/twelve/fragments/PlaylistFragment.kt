@@ -307,7 +307,7 @@ class PlaylistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_playl
                         }
                     }
 
-                    is FlowResult.Error -> {
+                    is FlowResult.Failure -> {
                         Log.e(
                             LOG_TAG,
                             "Error loading playlist, error: ${it.error}",

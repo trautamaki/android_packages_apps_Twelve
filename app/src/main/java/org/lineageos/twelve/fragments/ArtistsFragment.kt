@@ -155,7 +155,7 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
                             noElementsLinearLayout.isVisible = isEmpty
                         }
 
-                        is FlowResult.Error -> {
+                        is FlowResult.Failure -> {
                             Log.e(
                                 LOG_TAG,
                                 "Failed to load artists, error: ${it.error}",

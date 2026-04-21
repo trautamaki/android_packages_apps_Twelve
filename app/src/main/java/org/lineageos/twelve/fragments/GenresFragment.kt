@@ -154,7 +154,7 @@ class GenresFragment : Fragment(R.layout.fragment_genres) {
                             noElementsLinearLayout.isVisible = isEmpty
                         }
 
-                        is FlowResult.Error -> {
+                        is FlowResult.Failure -> {
                             Log.e(
                                 LOG_TAG,
                                 "Failed to load genres, error: ${it.error}",

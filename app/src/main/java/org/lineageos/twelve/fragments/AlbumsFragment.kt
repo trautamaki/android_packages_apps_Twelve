@@ -154,7 +154,7 @@ class AlbumsFragment : Fragment(R.layout.fragment_albums) {
                             noElementsLinearLayout.isVisible = isEmpty
                         }
 
-                        is FlowResult.Error -> {
+                        is FlowResult.Failure -> {
                             Log.e(
                                 LOG_TAG,
                                 "Failed to load albums, error: ${it.error}",

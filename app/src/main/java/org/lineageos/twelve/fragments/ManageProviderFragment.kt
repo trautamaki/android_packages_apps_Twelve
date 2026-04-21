@@ -235,7 +235,7 @@ class ManageProviderFragment : Fragment(R.layout.fragment_manage_provider) {
                                 providerNameTextInputLayout.editText?.setText(provider.name)
                             }
 
-                            is FlowResult.Error -> {
+                            is FlowResult.Failure -> {
                                 Log.e(
                                     LOG_TAG,
                                     "Failed to load provider, error: ${it.error}",

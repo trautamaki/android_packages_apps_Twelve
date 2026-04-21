@@ -189,7 +189,7 @@ class ViewActivity : AppCompatActivity(R.layout.activity_view) {
                                 dummyThumbnailImageView.isVisible = false
                             }
 
-                            is FlowResult.Error -> {
+                            is FlowResult.Failure -> {
                                 Log.e(LOG_TAG, "Failed to load artwork")
                                 dummyThumbnailImageView.isVisible = true
                                 thumbnailImageView.isVisible = false

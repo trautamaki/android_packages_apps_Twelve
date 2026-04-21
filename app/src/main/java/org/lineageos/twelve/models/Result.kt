@@ -22,7 +22,7 @@ sealed interface Result<T, E> {
      * @param error The error
      * @param throwable An optional [Throwable] object
      */
-    class Error<T, E>(val error: E, val throwable: Throwable? = null) : Result<T, E>
+    class Failure<T, E>(val error: E, val throwable: Throwable? = null) : Result<T, E>
 
     companion object {
         /**
@@ -30,23 +30,23 @@ sealed interface Result<T, E> {
          */
         fun <T, E> Result<T, E>.getOrNull() = when (this) {
             is Success -> data
-            is Error -> null
+            is Failure -> null
         }
 
         /**
          * Map the successful result to another [Result] object.
-         * On [Error], the original [Result] is returned.
+         * On [Failure], the original [Result] is returned.
          */
         inline fun <T, E, R> Result<T, E>.flatMap(
             mapping: (T) -> Result<R, E>
         ): Result<R, E> = when (this) {
             is Success -> mapping(data)
-            is Error -> Error(error, throwable)
+            is Failure -> Failure(error, throwable)
         }
 
         /**
          * Map the successful result to another type.
-         * On [Error], the original [Result] is returned.
+         * On [Failure], the original [Result] is returned.
          */
         inline fun <T, E, R> Result<T, E>.map(
             mapping: (T) -> R
@@ -62,12 +62,12 @@ sealed interface Result<T, E> {
         ): R = this.also {
             when (this) {
                 is Success<*, *> -> block(data as T)
-                is Error<*, *> -> Unit
+                is Failure<*, *> -> Unit
             }
         }
 
         /**
-         * Execute a block if the result is [Error].
+         * Execute a block if the result is [Failure].
          *
          * @param block The block to execute
          */
@@ -76,7 +76,7 @@ sealed interface Result<T, E> {
         ): R = this.also {
             when (this) {
                 is Success<*, *> -> Unit
-                is Error<*, *> -> block(error as E)
+                is Failure<*, *> -> block(error as E)
             }
         }
     }

@@ -187,7 +187,7 @@ class LyricsFragment : Fragment(R.layout.fragment_lyrics) {
                         noElementsNestedScrollView.isVisible = isEmpty
                     }
 
-                    is FlowResult.Error -> {
+                    is FlowResult.Failure -> {
                         Log.e(
                             LOG_TAG,
                             "Error while loading lyrics, error: ${it.error}",

@@ -20,7 +20,7 @@ import kotlin.experimental.ExperimentalTypeInference
 sealed interface FlowResult<T, E> {
     class Loading<T, E> : FlowResult<T, E>
     class Success<T, E>(val data: T) : FlowResult<T, E>
-    class Error<T, E>(val error: E, val throwable: Throwable? = null) : FlowResult<T, E>
+    class Failure<T, E>(val error: E, val throwable: Throwable? = null) : FlowResult<T, E>
 
     companion object {
         /**
@@ -29,7 +29,7 @@ sealed interface FlowResult<T, E> {
         fun <T, E> FlowResult<T, E>.getOrNull() = when (this) {
             is Loading -> null
             is Success -> data
-            is Error -> null
+            is Failure -> null
         }
 
         /**
@@ -39,14 +39,14 @@ sealed interface FlowResult<T, E> {
         fun <T, E> Flow<Result<out T, out E>>.asFlowResult() = mapLatest {
             when (it) {
                 is Result.Success -> Success<T, E>(it.data)
-                is Result.Error -> Error(it.error, it.throwable)
+                is Result.Failure -> Failure(it.error, it.throwable)
             }
         }
 
         /**
          * Transform the data of a flow of [FlowResult] to a new [FlowResult].
-         * When the original flow emits a [Loading] or an [Error] state, the new flow will emit the
-         * same result.
+         * When the original flow emits a [Loading] or an [Failure] state, the new flow will emit
+         * the same result.
          *
          * @see Flow.mapLatest
          */
@@ -57,14 +57,14 @@ sealed interface FlowResult<T, E> {
             when (it) {
                 is Loading -> Loading()
                 is Success -> transform(it.data)
-                is Error -> Error(it.error, it.throwable)
+                is Failure -> Failure(it.error, it.throwable)
             }
         }
 
         /**
          * Map the data of a flow of [FlowResult].
-         * When the original flow emits a [Loading] or an [Error] state, the new flow will emit the
-         * same result.
+         * When the original flow emits a [Loading] or an [Failure] state, the new flow will emit
+         * the same result.
          *
          * @see Flow.mapLatest
          */
@@ -89,7 +89,7 @@ sealed interface FlowResult<T, E> {
                     }
 
                     is Success -> trySend(onSuccess(it.data))
-                    is Error -> trySend(onError(it.error, it.throwable))
+                    is Failure -> trySend(onError(it.error, it.throwable))
                 }
             }
         }
@@ -103,7 +103,7 @@ sealed interface FlowResult<T, E> {
             @BuilderInference onSuccess: suspend (value: T) -> Flow<FlowResult<R, E>>,
         ) = foldLatest(
             onSuccess = { onSuccess(it) },
-            onError = { error, throwable -> flowOf(Error(error, throwable)) },
+            onError = { error, throwable -> flowOf(Failure(error, throwable)) },
         ).flatMapLatest { it }
 
         /**

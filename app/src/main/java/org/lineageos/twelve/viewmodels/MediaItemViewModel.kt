@@ -117,7 +117,7 @@ class MediaItemViewModel(application: Application) : TwelveViewModel(application
         .flatMapLatest { playlistUri ->
             playlistUri?.let {
                 mediaRepository.playlist(it)
-            } ?: flowOf(Result.Error(Error.NOT_FOUND))
+            } ?: flowOf(Result.Failure(Error.NOT_FOUND))
         }
         .asFlowResult()
         .flowOn(Dispatchers.IO)

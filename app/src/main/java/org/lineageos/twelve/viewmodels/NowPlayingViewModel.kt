@@ -136,7 +136,7 @@ open class NowPlayingViewModel(application: Application) : TwelveViewModel(appli
         .flatMapLatest { mediaItemUri ->
             mediaItemUri?.let {
                 mediaRepository.audio(it)
-            } ?: flowOf(Result.Error(Error.NOT_FOUND))
+            } ?: flowOf(Result.Failure(Error.NOT_FOUND))
         }
         .asFlowResult()
         .flowOn(Dispatchers.IO)
@@ -204,7 +204,7 @@ open class NowPlayingViewModel(application: Application) : TwelveViewModel(appli
             PlaybackState.BUFFERING -> null
             else -> mediaMetadata.toThumbnail(applicationContext)?.let {
                 Result.Success(it)
-            } ?: Result.Error(Error.NOT_FOUND)
+            } ?: Result.Failure(Error.NOT_FOUND)
         }
     }
         .flowOn(Dispatchers.IO)
@@ -351,7 +351,7 @@ open class NowPlayingViewModel(application: Application) : TwelveViewModel(appli
         .flatMapLatest { mediaItemUri ->
             mediaItemUri?.let {
                 mediaRepository.lyrics(it)
-            } ?: flowOf(Result.Error(Error.NOT_FOUND))
+            } ?: flowOf(Result.Failure(Error.NOT_FOUND))
         }
         .asFlowResult()
         .flowOn(Dispatchers.IO)

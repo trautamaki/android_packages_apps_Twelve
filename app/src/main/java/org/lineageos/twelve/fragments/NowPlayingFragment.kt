@@ -328,7 +328,7 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
                                 )
                             }
 
-                            is FlowResult.Error -> {
+                            is FlowResult.Failure -> {
                                 Log.e(
                                     LOG_TAG,
                                     "Error while loading audio, error: ${it.error}",
@@ -378,7 +378,7 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
                                 )
                             }
 
-                            is Result.Error -> {
+                            is Result.Failure -> {
                                 Log.e(
                                     LOG_TAG,
                                     "Error while getting media artwork: ${it.error}",
@@ -601,7 +601,7 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
                                 lyricsMaterialCardView.isVisible = true
                             }
 
-                            is FlowResult.Error -> {
+                            is FlowResult.Failure -> {
                                 Log.e(
                                     LOG_TAG,
                                     "Error while loading lyrics: ${it.error}",

@@ -158,7 +158,7 @@ class ActivityFragment : Fragment(R.layout.fragment_activity) {
                     noElementsLinearLayout.isVisible = isEmpty
                 }
 
-                is FlowResult.Error -> {
+                is FlowResult.Failure -> {
                     Log.e(LOG_TAG, "Failed to load activity, error: ${it.error}", it.throwable)
 
                     recyclerView.isVisible = false

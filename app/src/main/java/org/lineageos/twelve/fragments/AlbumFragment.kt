@@ -336,7 +336,7 @@ class AlbumFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_album) {
                             )
                         }
 
-                        is FlowResult.Error -> {
+                        is FlowResult.Failure -> {
                             Log.e(
                                 LOG_TAG,
                                 "Error loading album, error: ${it.error}",

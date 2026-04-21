@@ -65,5 +65,5 @@ class MainViewModel(application: Application) : TwelveViewModel(application) {
 
     suspend fun playAllAudios() = mediaRepository.audios().firstOrNull()?.map { audios ->
         playAudio(audios.shuffled(), 0)
-    } ?: Result.Error(Error.INVALID_RESPONSE)
+    } ?: Result.Failure(Error.INVALID_RESPONSE)
 }

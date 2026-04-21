@@ -40,7 +40,7 @@ open class ProviderViewModel(application: Application) : TwelveViewModel(applica
                 providersRepository.provider(providerIdentifier).mapLatest { maybeProvider ->
                     maybeProvider?.let { provider ->
                         FlowResult.Success<_, Error>(provider)
-                    } ?: FlowResult.Error(Error.NOT_FOUND)
+                    } ?: FlowResult.Failure(Error.NOT_FOUND)
                 }
             } ?: flowOf(FlowResult.Loading())
         }

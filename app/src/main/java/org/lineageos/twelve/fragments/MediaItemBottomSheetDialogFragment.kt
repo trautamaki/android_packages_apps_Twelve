@@ -271,7 +271,7 @@ class MediaItemBottomSheetDialogFragment : TwelveBottomSheetDialogFragment(
                         }
                     }
 
-                    is FlowResult.Error -> {
+                    is FlowResult.Failure -> {
                         Log.e(
                             LOG_TAG,
                             "Failed to load media item, error: ${it.error}",

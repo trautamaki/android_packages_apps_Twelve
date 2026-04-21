@@ -426,7 +426,7 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                                     isEmpty && searchView.editText.text.isNotEmpty()
                             }
 
-                            is FlowResult.Error -> {
+                            is FlowResult.Failure -> {
                                 Log.e(
                                     LOG_TAG,
                                     "Failed to load search results, error: ${it.error}",

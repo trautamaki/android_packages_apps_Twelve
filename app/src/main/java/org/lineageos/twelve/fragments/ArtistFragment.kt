@@ -259,7 +259,7 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
                     noElementsNestedScrollView.isVisible = isEmpty
                 }
 
-                is FlowResult.Error -> {
+                is FlowResult.Failure -> {
                     Log.e(LOG_TAG, "Error loading artist, error: ${it.error}", it.throwable)
 
                     toolbar.title = ""

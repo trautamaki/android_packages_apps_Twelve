@@ -470,7 +470,7 @@ class MediaStoreDataSource(
         ).mapEachRowToAudio(volumeName).mapLatest { audios ->
             audios.firstOrNull()?.let {
                 Result.Success(it)
-            } ?: Result.Error(Error.NOT_FOUND)
+            } ?: Result.Failure(Error.NOT_FOUND)
         }
     }
 
@@ -521,7 +521,7 @@ class MediaStoreDataSource(
         ) { albums, audios ->
             albums.firstOrNull()?.let { album ->
                 Result.Success(album to audios)
-            } ?: Result.Error(Error.NOT_FOUND)
+            } ?: Result.Failure(Error.NOT_FOUND)
         }
     }
 
@@ -619,7 +619,7 @@ class MediaStoreDataSource(
                 )
 
                 Result.Success(artist to artistWorks)
-            } ?: Result.Error(Error.NOT_FOUND)
+            } ?: Result.Failure(Error.NOT_FOUND)
         }
     }
 
@@ -734,7 +734,7 @@ class MediaStoreDataSource(
                     )
 
                     Result.Success(it to genreContent)
-                } ?: Result.Error(Error.NOT_FOUND)
+                } ?: Result.Failure(Error.NOT_FOUND)
             }
         }
     }
@@ -755,7 +755,7 @@ class MediaStoreDataSource(
                 audios(playlistWithItems.items).mapLatest { items ->
                     Result.Success<_, Error>(playlist to items.filterNotNull())
                 }
-            } ?: flowOf(Result.Error(Error.NOT_FOUND))
+            } ?: flowOf(Result.Failure(Error.NOT_FOUND))
         }
     }
 
@@ -775,7 +775,7 @@ class MediaStoreDataSource(
     }
 
     override fun lyrics(audioUri: Uri) = flowOf(
-        Result.Error<Lyrics, _>(Error.NOT_IMPLEMENTED)
+        Result.Failure<Lyrics, _>(Error.NOT_IMPLEMENTED)
     )
 
     override suspend fun createPlaylist(
@@ -788,14 +788,14 @@ class MediaStoreDataSource(
     }
 
     override suspend fun renamePlaylist(playlistUri: Uri, name: String) = when {
-        playlistUri == favoritesUri -> Result.Error(Error.IO)
+        playlistUri == favoritesUri -> Result.Failure(Error.IO)
         else -> database.getPlaylistDao().rename(ContentUris.parseId(playlistUri), name).let {
             Result.Success<_, Error>(Unit)
         }
     }
 
     override suspend fun deletePlaylist(playlistUri: Uri) = when {
-        playlistUri == favoritesUri -> Result.Error(Error.IO)
+        playlistUri == favoritesUri -> Result.Failure(Error.IO)
         else -> database.getPlaylistDao().delete(ContentUris.parseId(playlistUri)).let {
             Result.Success<_, Error>(Unit)
         }
@@ -888,7 +888,7 @@ class MediaStoreDataSource(
         block: (volumeName: String) -> Flow<Result<T, Error>>,
     ) = MediaStoreAudioUri.from(mediaItemUri)?.let {
         block(it.volumeName)
-    } ?: flowOf(Result.Error(Error.NOT_FOUND))
+    } ?: flowOf(Result.Failure(Error.NOT_FOUND))
 
     private fun getAlbumsUri(
         volumeName: String

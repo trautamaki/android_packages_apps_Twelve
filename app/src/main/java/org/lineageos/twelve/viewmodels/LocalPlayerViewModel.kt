@@ -139,7 +139,7 @@ class LocalPlayerViewModel(application: Application) : AndroidViewModel(applicat
             PlaybackState.BUFFERING -> FlowResult.Loading()
             else -> mediaMetadata.toThumbnail(applicationContext)?.let {
                 FlowResult.Success<Thumbnail, Error>(it)
-            } ?: FlowResult.Error(Error.NOT_FOUND)
+            } ?: FlowResult.Failure(Error.NOT_FOUND)
         }
     }
         .flowOn(Dispatchers.IO)
