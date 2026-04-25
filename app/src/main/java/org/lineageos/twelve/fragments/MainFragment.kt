@@ -65,6 +65,7 @@ import org.lineageos.twelve.models.Playlist
 import org.lineageos.twelve.models.Result.Companion.onError
 import org.lineageos.twelve.models.areContentsTheSame
 import org.lineageos.twelve.models.areItemsTheSame
+import org.lineageos.twelve.ui.recyclerview.SearchListAdapter
 import org.lineageos.twelve.ui.recyclerview.SimpleListAdapter
 import org.lineageos.twelve.ui.views.ListItem
 import org.lineageos.twelve.viewmodels.MainViewModel
@@ -114,92 +115,78 @@ class MainFragment : Fragment(R.layout.fragment_main) {
 
     // RecyclerView
     private val searchAdapter by lazy {
-        object : SimpleListAdapter<MediaItem<*>, ListItem>(
-            searchDiffCallback,
-            ::ListItem
-        ) {
-            override fun ViewHolder.onBindView(item: MediaItem<*>) {
-                view.setOnLongClickListener {
-                    findNavController().navigateSafe(
-                        R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
-                        MediaItemBottomSheetDialogFragment.createBundle(item.uri)
-                    )
-                    true
-                }
-
-                when (item) {
-                    is Album -> {
-                        view.setOnClickListener {
-                            viewModel.addHistoryItem(searchView.editText.text.toString())
-                            findNavController().navigateSafe(
-                                R.id.action_mainFragment_to_fragment_album,
-                                AlbumFragment.createBundle(item.uri)
-                            )
-                        }
-
-                        view.setTrailingIconImage(R.drawable.ic_album)
-                        view.headlineText = item.title
-                        view.supportingText = item.artistName
-                    }
-
-                    is Artist -> {
-                        view.setOnClickListener {
-                            viewModel.addHistoryItem(searchView.editText.text.toString())
-                            findNavController().navigateSafe(
-                                R.id.action_mainFragment_to_fragment_artist,
-                                ArtistFragment.createBundle(item.uri)
-                            )
-                        }
-
-                        view.setTrailingIconImage(R.drawable.ic_person)
-                        view.headlineText = item.name
-                        view.supportingText = null
-                    }
-
-                    is Audio -> {
-                        view.setOnClickListener {
-                            viewModel.addHistoryItem(searchView.editText.text.toString())
-                            findNavController().navigateSafe(
-                                R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
-                                MediaItemBottomSheetDialogFragment.createBundle(item.uri)
-                            )
-                        }
-
-                        view.setTrailingIconImage(R.drawable.ic_music_note)
-                        view.headlineText = item.title
-                        view.supportingText = item.artistName
-                    }
-
-                    is Genre -> {
-                        view.setOnClickListener {
-                            viewModel.addHistoryItem(searchView.editText.text.toString())
-                            findNavController().navigateSafe(
-                                R.id.action_mainFragment_to_fragment_genre,
-                                GenreFragment.createBundle(item.uri)
-                            )
-                        }
-
-                        view.setTrailingIconImage(R.drawable.ic_genres)
-                        view.headlineText = item.name
-                        view.supportingText = null
-                    }
-
-                    is Playlist -> {
-                        view.setOnClickListener {
-                            viewModel.addHistoryItem(searchView.editText.text.toString())
-                            findNavController().navigateSafe(
-                                R.id.action_mainFragment_to_fragment_playlist,
-                                PlaylistFragment.createBundle(item.uri)
-                            )
-                        }
-
-                        view.setTrailingIconImage(R.drawable.ic_playlist_play)
-                        view.headlineText = item.name
-                        view.supportingText = null
-                    }
-                }
-            }
-        }
+        SearchListAdapter(
+            onArtistClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_artist,
+                    ArtistFragment.createBundle(it.artist.uri)
+                )
+            },
+            onArtistLongClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.artist.uri)
+                )
+            },
+            onAlbumClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.album.uri)
+                )
+            },
+            onAlbumLongClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.album.uri)
+                )
+            },
+            onAudioClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.audio.uri)
+                )
+            },
+            onAudioLongClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.audio.uri)
+                )
+            },
+            onGenreClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.genre.uri)
+                )
+            },
+            onGenreHoldClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.genre.uri)
+                )
+            },
+            onPlaylistClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.playlist.uri)
+                )
+            },
+            onPlaylistLongClick = {
+                viewModel.addHistoryItem(searchView.editText.text.toString())
+                findNavController().navigateSafe(
+                    R.id.action_mainFragment_to_fragment_media_item_bottom_sheet_dialog,
+                    MediaItemBottomSheetDialogFragment.createBundle(it.playlist.uri)
+                )
+            },
+        )
     }
 
     private val historyAdapter by lazy {
@@ -575,7 +562,6 @@ class MainFragment : Fragment(R.layout.fragment_main) {
                             }
 
                             is FlowResult.Success -> {
-                                searchRecyclerView.adapter = searchAdapter
                                 searchAdapter.submitList(it.data)
 
                                 val isEmpty = it.data.isEmpty()

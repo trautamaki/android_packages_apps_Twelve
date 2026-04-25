@@ -7,6 +7,7 @@ package org.lineageos.twelve.ext
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.flow.map
@@ -32,3 +33,9 @@ fun Context.permissionsFlow(lifecycle: Lifecycle, permissions: Array<String>) =
         .map {
             permissionsStatus(permissions)
         }
+
+fun Context.getColorFromAttr(attr: Int): Int {
+    val typedValue = TypedValue()
+    theme.resolveAttribute(attr, typedValue, true)
+    return typedValue.data
+}
