@@ -23,11 +23,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.lineageos.twelve.database.TwelveDatabase
 import org.lineageos.twelve.database.entities.SearchHistory
+import org.lineageos.twelve.models.Album
+import org.lineageos.twelve.models.Artist
+import org.lineageos.twelve.models.Audio
 import org.lineageos.twelve.models.Error
 import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.FlowResult.Companion.asFlowResult
+import org.lineageos.twelve.models.Genre
+import org.lineageos.twelve.models.MediaItem
+import org.lineageos.twelve.models.Playlist
 import org.lineageos.twelve.models.Result
 import org.lineageos.twelve.models.Result.Companion.map
+import org.lineageos.twelve.models.SearchItem
 import java.time.Instant
 
 /**
@@ -54,10 +61,22 @@ class MainViewModel(application: Application) : TwelveViewModel(application) {
         }
         .flatMapLatest { query ->
             query.trim().takeIf { it.isNotEmpty() }?.let {
-                mediaRepository.search("%${it}%")
+                mediaRepository.search(it)
+                    .mapLatest { result ->
+                        when (result) {
+                            is Result.Success -> Result.Success<List<SearchItem>, Error>(
+                                groupResults(result.data)
+                            )
+
+                            is Result.Error -> Result.Error<List<SearchItem>, Error>(
+                                result.error,
+                                result.throwable
+                            )
+                        }
+                    }
                     .asFlowResult()
                     .onStart { emit(FlowResult.Loading()) }
-            } ?: flowOf(FlowResult.Success(listOf()))
+            } ?: flowOf(FlowResult.Success<List<SearchItem>, Error>(listOf()))
         }
         .flowOn(Dispatchers.IO)
         .stateIn(
@@ -65,6 +84,37 @@ class MainViewModel(application: Application) : TwelveViewModel(application) {
             SharingStarted.WhileSubscribed(),
             FlowResult.Loading()
         )
+
+    private fun groupResults(items: List<MediaItem<*>>): List<SearchItem> {
+        val genres = items.filterIsInstance<Genre>()
+        val artists = items.filterIsInstance<Artist>()
+        val albums = items.filterIsInstance<Album>()
+        val playlists = items.filterIsInstance<Playlist>()
+        val audios = items.filterIsInstance<Audio>()
+
+        return buildList {
+            if (genres.isNotEmpty()) {
+                add(SearchItem.Header("Genres"))
+                genres.take(SEARCH_RESULTS_LIMIT).forEach { add(SearchItem.GenreItem(it)) }
+            }
+            if (artists.isNotEmpty()) {
+                add(SearchItem.Header("Artists"))
+                add(SearchItem.ArtistRow(artists.take(SEARCH_RESULTS_LIMIT)))
+            }
+            if (albums.isNotEmpty()) {
+                add(SearchItem.Header("Albums"))
+                add(SearchItem.AlbumRow(albums.take(SEARCH_RESULTS_LIMIT)))
+            }
+            if (playlists.isNotEmpty()) {
+                add(SearchItem.Header("Playlists"))
+                playlists.take(SEARCH_RESULTS_LIMIT).forEach { add(SearchItem.PlaylistItem(it)) }
+            }
+            if (audios.isNotEmpty()) {
+                add(SearchItem.Header("Songs"))
+                audios.forEach { add(SearchItem.AudioItem(it)) }
+            }
+        }
+    }
 
     fun setSearchQuery(query: String, immediate: Boolean = false) {
         searchQuery.value = query to immediate
@@ -98,5 +148,9 @@ class MainViewModel(application: Application) : TwelveViewModel(application) {
         viewModelScope.launch {
             searchHistoryDao.delete(SearchHistory(query, Instant.now()))
         }
+    }
+
+    companion object {
+        private const val SEARCH_RESULTS_LIMIT = 3
     }
 }
