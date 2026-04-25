@@ -107,12 +107,20 @@ class JellyfinClient(
         ) + getSortParameter(sortingRule),
     ).execute(api).mapToError()
 
-    suspend fun getItems(query: String) = ApiRequest.get<QueryResult>(
+    suspend fun getItems(query: String) = search(query)
+
+    suspend fun search(
+        query: String,
+        type: String = "Playlist,MusicAlbum,MusicArtist,MusicGenre,Audio",
+        limit: Int = 50
+    ) = ApiRequest.get<QueryResult>(
         listOf("Items"),
         queryParameters = listOf(
             "SearchTerm" to query,
-            "IncludeItemTypes" to "Playlist,MusicAlbum,MusicArtist,MusicGenre,Audio",
+            "IncludeItemTypes" to type,
+            "Limit" to limit,
             "Recursive" to true,
+            "Fields" to "SortName",
         ),
     ).execute(api).mapToError()
 

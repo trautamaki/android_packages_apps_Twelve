@@ -10,6 +10,8 @@ import android.net.Uri
 import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
@@ -33,6 +35,7 @@ import org.lineageos.twelve.models.Genre
 import org.lineageos.twelve.models.GenreContent
 import org.lineageos.twelve.models.LocalizedString
 import org.lineageos.twelve.models.Lyrics
+import org.lineageos.twelve.models.MediaItem
 import org.lineageos.twelve.models.MediaType
 import org.lineageos.twelve.models.Playlist
 import org.lineageos.twelve.models.ProviderArgument
@@ -398,24 +401,48 @@ class JellyfinDataSource(
         providerIdentifier: ProviderIdentifier,
         query: String,
     ) = providersManager.mapWithInstanceOf(providerIdentifier) {
-        client.getItems(query).map { queryResult ->
-            queryResult.items.mapNotNull {
-                when (it.type) {
-                    ItemType.MUSIC_ALBUM -> it.toMediaItemAlbum()
+        coroutineScope {
+            val artists = async { client.search(query, type = "MusicArtist", limit = 5) }
+            val albums = async { client.search(query, type = "MusicAlbum", limit = 5) }
+            val audio = async { client.search(query, type = "Audio", limit = 50) }
+            val genres = async { client.search(query, type = "MusicGenre", limit = 5) }
+            val playlists = async { client.search(query, type = "Playlist", limit = 5) }
 
-                    ItemType.MUSIC_ARTIST,
-                    ItemType.PERSON -> it.toMediaItemArtist()
+            listOf(
+                artists.await(),
+                albums.await(),
+                audio.await(),
+                genres.await(),
+                playlists.await()
+            )
+                .map { result ->
+                    result.map { queryResult ->
+                        queryResult.items.mapNotNull {
+                            when (it.type) {
+                                ItemType.MUSIC_ALBUM -> it.toMediaItemAlbum()
+                                ItemType.MUSIC_ARTIST,
+                                ItemType.PERSON -> it.toMediaItemArtist()
 
-                    ItemType.AUDIO -> it.toMediaItemAudio()
+                                ItemType.AUDIO -> it.toMediaItemAudio()
+                                ItemType.GENRE,
+                                ItemType.MUSIC_GENRE -> it.toMediaItemGenre()
 
-                    ItemType.GENRE,
-                    ItemType.MUSIC_GENRE -> it.toMediaItemGenre()
-
-                    ItemType.PLAYLIST -> it.toMediaItemPlaylist()
-
-                    else -> null
+                                ItemType.PLAYLIST -> it.toMediaItemPlaylist()
+                                else -> null
+                            }
+                        }
+                    }
                 }
-            }
+                .let { results ->
+                    val error = results.filterIsInstance<Result.Error<*, *>>().firstOrNull()
+                    if (error != null) {
+                        Result.Error(error.error as Error, error.throwable)
+                    } else {
+                        Result.Success(
+                            results.filterIsInstance<Result.Success<List<MediaItem<*>>, *>>()
+                                .flatMap { it.data })
+                    }
+                }
         }
     }
 
