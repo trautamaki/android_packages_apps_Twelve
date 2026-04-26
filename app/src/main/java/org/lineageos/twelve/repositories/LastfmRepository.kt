@@ -17,7 +17,7 @@ class LastfmRepository(
     },
 ) {
     fun popularTracksByArtist(artistName: String) = flow {
-        val cacheKey = "popular_$artistName"
+        val cacheKey = "popular_v2_$artistName"
         val cached = cache.get(cacheKey)
 
         if (cached != null) {

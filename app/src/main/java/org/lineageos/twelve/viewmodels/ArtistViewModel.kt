@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import org.lineageos.twelve.datasources.lastfm.models.toPopularTrack
+import org.lineageos.twelve.ext.normalizedTitle
 import org.lineageos.twelve.models.Audio
 import org.lineageos.twelve.models.FlowResult
 import org.lineageos.twelve.models.FlowResult.Companion.asFlowResult
@@ -86,12 +87,30 @@ class ArtistViewModel(application: Application) : TwelveViewModel(application) {
     val enrichedPopularTracks = popularTracks
         .flatMapLatestData { popular ->
             artistTracks.mapLatestData { artistTracksTab ->
+
                 val localTracks = artistTracksTab.items.filterIsInstance<Audio>()
-                popular.mapNotNull { popularTrack ->
-                    localTracks.firstOrNull { localTrack ->
-                        localTrack.title?.equals(popularTrack.name, ignoreCase = true) == true
-                    }?.copy(listenCount = popularTrack.listenerCount)
+
+                // MusicBrainz ID -> local track
+                val byMbid = mutableMapOf<String, MutableList<Audio>>()
+                localTracks.forEach { audio ->
+                    listOfNotNull(audio.musicBrainzRecordingId, audio.musicBrainzTrackId)
+                        .forEach { byMbid.getOrPut(it) { mutableListOf() } += audio }
                 }
+
+                // Normalized title -> local tracks, fallback when mbid is missing/unmatched
+                val byTitle = localTracks.groupBy { it.title?.normalizedTitle().orEmpty() } - ""
+                val usedUris = mutableSetOf<Uri>()
+                fun List<Audio>?.firstUnused() = this?.firstOrNull { it.uri !in usedUris }
+
+                popular
+                    .mapNotNull { popularTrack ->
+                        val match = popularTrack.mbid?.let { byMbid[it] }.firstUnused()
+                            ?: byTitle[popularTrack.name.normalizedTitle()].firstUnused()
+
+                        match?.also { usedUris += it.uri }
+                            ?.copy(listenCount = popularTrack.listenerCount)
+                    }
+                    .take(POPULAR_TRACKS_COUNT)
             }
         }
         .flowOn(Dispatchers.IO)
@@ -112,5 +131,9 @@ class ArtistViewModel(application: Application) : TwelveViewModel(application) {
                 popularityMap[track.uri] ?: track.copy(listenCount = 0)
             }
             .sortedByDescending { it.listenCount ?: 0 }
+    }
+
+    companion object {
+        private const val POPULAR_TRACKS_COUNT = 5
     }
 }

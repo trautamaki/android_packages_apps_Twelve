@@ -31,4 +31,5 @@ data class Item(
     @SerialName("GenreItems") val genreItems: List<GenreItem>? = null,
     @SerialName("Type") val type: ItemType? = null,
     @SerialName("UserData") val userData: UserData? = null,
+    @SerialName("ProviderIds") val providerIds: Map<String, String>? = null,
 )

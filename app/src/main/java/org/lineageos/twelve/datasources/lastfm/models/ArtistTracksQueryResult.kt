@@ -12,4 +12,5 @@ fun Track.toPopularTrack() = PopularTrack(
     name = name ?: "",
     artist = artist?.name,
     listenerCount = playcount,
+    mbid = mbid?.trim()?.lowercase()?.takeIf { it.isNotEmpty() },
 )

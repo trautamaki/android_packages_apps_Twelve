@@ -12,5 +12,8 @@ data class Track(
     val playcount: Int? = null,
 
     @SerialName("artist")
-    val artist: Artist? = null
+    val artist: Artist? = null,
+
+    @SerialName("mbid")
+    val mbid: String? = null,
 )

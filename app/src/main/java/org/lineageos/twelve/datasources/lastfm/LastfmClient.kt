@@ -25,7 +25,7 @@ class LastfmClient(
             listOf(
                 "method" to "artist.gettoptracks",
                 "artist" to artistName,
-                "limit" to 5,
+                "limit" to 30,
                 "api_key" to key,
                 "format" to "json"
             )

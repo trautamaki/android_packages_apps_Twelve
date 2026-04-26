@@ -144,6 +144,8 @@ class JellyfinDataSource(
             .setGenreName(genres?.firstOrNull())
             .setYear(productionYear)
             .setIsFavorite(userData?.isFavorite == true)
+            .setMusicBrainzRecordingId(providerIds.musicBrainzId("MusicBrainzRecording"))
+            .setMusicBrainzTrackId(providerIds.musicBrainzId("MusicBrainzTrack"))
             .apply {
                 albumId?.let { albumId ->
                     setThumbnail(
@@ -213,6 +215,9 @@ class JellyfinDataSource(
         fun onFavoritesChanged() {
             favoritesChanged.value = Any()
         }
+
+        private fun Map<String, String>?.musicBrainzId(key: String) =
+            this?.get(key)?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
     }
 
     private val packageName = context.packageName

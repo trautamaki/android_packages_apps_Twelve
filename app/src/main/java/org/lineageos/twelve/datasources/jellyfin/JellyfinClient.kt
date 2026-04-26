@@ -186,6 +186,7 @@ class JellyfinClient(
             "MediaTypes" to "Audio",
             "Limit" to 300,
             "Recursive" to true,
+            "Fields" to DEFAULT_FIELDS,
         ),
     ).execute(api).mapToError()
 
@@ -437,6 +438,6 @@ class JellyfinClient(
 
     companion object {
         const val JELLYFIN_API_VERSION = "10.10.3"
-        private const val DEFAULT_FIELDS = "Genres,GenreItems,ArtistItems"
+        private const val DEFAULT_FIELDS = "Genres,GenreItems,ArtistItems,ProviderIds"
     }
 }

@@ -33,6 +33,8 @@ import org.lineageos.twelve.ext.toByteArray
  * @param genreName The name of the genre of the audio
  * @param year The year of release of the audio
  * @param isFavorite Whether this audio is a favorite
+ * @param musicBrainzRecordingId The MusicBrainz recording ID of the audio, if known
+ * @param musicBrainzTrackId The MusicBrainz (release) track ID of the audio, if known
  */
 data class Audio(
     override val uri: Uri,
@@ -53,6 +55,8 @@ data class Audio(
     val year: Int?,
     val isFavorite: Boolean,
     val listenCount: Int? = null,
+    val musicBrainzRecordingId: String? = null,
+    val musicBrainzTrackId: String? = null,
 ) : MediaItem<Audio> {
     enum class Type(
         val media3MediaType: @MediaMetadata.MediaType Int,
@@ -136,6 +140,8 @@ data class Audio(
         private var genreName: String? = null
         private var year: Int? = null
         private var isFavorite: Boolean = false
+        private var musicBrainzRecordingId: String? = null
+        private var musicBrainzTrackId: String? = null
 
         /**
          * @see Audio.playbackUri
@@ -242,6 +248,20 @@ data class Audio(
             this.isFavorite = isFavorite
         }
 
+        /**
+         * @see Audio.musicBrainzRecordingId
+         */
+        fun setMusicBrainzRecordingId(musicBrainzRecordingId: String?) = this.also {
+            this.musicBrainzRecordingId = musicBrainzRecordingId
+        }
+
+        /**
+         * @see Audio.musicBrainzTrackId
+         */
+        fun setMusicBrainzTrackId(musicBrainzTrackId: String?) = this.also {
+            this.musicBrainzTrackId = musicBrainzTrackId
+        }
+
         override fun build() = Audio(
             uri = uri,
             thumbnail = thumbnail,
@@ -260,6 +280,8 @@ data class Audio(
             genreName = genreName,
             year = year,
             isFavorite = isFavorite,
+            musicBrainzRecordingId = musicBrainzRecordingId,
+            musicBrainzTrackId = musicBrainzTrackId,
         )
     }
 }
