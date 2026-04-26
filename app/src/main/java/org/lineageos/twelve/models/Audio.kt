@@ -120,6 +120,18 @@ data class Audio(
         isFavorite = isFavorite,
     )
 
+    fun normalizedTitle(): String =
+        title
+            ?.lowercase()
+            ?.replace(Regex("\\(.*?\\)"), "")
+            ?.replace(Regex("\\[.*?]"), "")
+            ?.replace(Regex("feat\\.? .*"), "")
+            ?.replace(Regex("ft\\.? .*"), "")
+            ?.replace(Regex("[^a-z0-9 ]"), "")
+            ?.replace(Regex("\\s+"), " ")
+            ?.trim()
+            ?: ""
+
     class Builder(uri: Uri) : MediaItem.Builder<Builder, Audio>(uri) {
         private var playbackUri: Uri? = null
         private var mimeType: String? = null
