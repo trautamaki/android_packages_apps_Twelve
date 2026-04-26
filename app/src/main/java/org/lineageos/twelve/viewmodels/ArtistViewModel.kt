@@ -101,9 +101,16 @@ class ArtistViewModel(application: Application) : TwelveViewModel(application) {
             FlowResult.Loading()
         )
 
-    fun buildPlayQueue(popularTracks: List<Audio>, artistTracks: List<Audio>): List<Audio> {
-        val popularUris = popularTracks.map { it.uri }.toSet()
-        val remaining = artistTracks.filter { it.uri !in popularUris }
-        return popularTracks + remaining
+    fun buildSortedQueue(
+        popularTracks: List<Audio>,
+        artistTracks: List<Audio>
+    ): List<Audio> {
+        val popularityMap = popularTracks.associateBy { it.uri }
+
+        return artistTracks
+            .map { track ->
+                popularityMap[track.uri] ?: track.copy(listenCount = 0)
+            }
+            .sortedByDescending { it.listenCount ?: 0 }
     }
 }

@@ -312,9 +312,8 @@ class ArtistFragment : CollapsingToolbarLayoutFragment(R.layout.fragment_artist)
                 viewModel.artistTracks,
             ) { popular, allTracks ->
                 val popularList = (popular as? FlowResult.Success)?.data ?: emptyList()
-                val allList = (allTracks as? FlowResult.Success)
-                    ?.data?.items?.filterIsInstance<Audio>() ?: emptyList()
-                viewModel.buildPlayQueue(popularList, allList)
+                val allList = (allTracks as? FlowResult.Success)?.data?.items?.filterIsInstance<Audio>().orEmpty()
+                viewModel.buildSortedQueue(popularList, allList)
             }.first { it.isNotEmpty() }.let { queue ->
                 viewModel.playAudio(queue, 0)
             }
