@@ -86,12 +86,26 @@ class ArtistViewModel(application: Application) : TwelveViewModel(application) {
     val enrichedPopularTracks = popularTracks
         .flatMapLatestData { popular ->
             artistTracks.mapLatestData { artistTracksTab ->
+
                 val localTracks = artistTracksTab.items.filterIsInstance<Audio>()
+
+                // Group local tracks by normalized title
+                val localMap = localTracks
+                    .groupBy { it.normalizedTitle() }
+                    .toMutableMap()
+
+                val usedUris = mutableSetOf<Uri>()
+
                 popular.mapNotNull { popularTrack ->
-                    localTracks.firstOrNull { localTrack ->
-                        localTrack.title?.equals(popularTrack.name, ignoreCase = true) == true
-                    }?.copy(listenCount = popularTrack.listenerCount)
+                    val key = popularTrack.normalizedTitle()
+
+                    val match = localMap[key]
+                        ?.firstOrNull { it.uri !in usedUris }
+
+                    match?.also { usedUris += it.uri }
+                        ?.copy(listenCount = popularTrack.listenerCount)
                 }
+                    .distinctBy { it.uri }
             }
         }
         .flowOn(Dispatchers.IO)
