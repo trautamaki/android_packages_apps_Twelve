@@ -704,7 +704,7 @@ class SubsonicDataSource(
         audioUri: Uri,
         positionMs: Long,
     ): MediaRequestStatus<Unit> = providersManager.doWithInstanceOf(audioUri) {
-        subsonicClient.scrobble(ids = listOf(audioUri.lastPathSegment!!))
+        subsonicClient.scrobble(ids = listOf(audioUri.lastPathSegment!!), submission = false)
         Result.Success(Unit)
     }
 
