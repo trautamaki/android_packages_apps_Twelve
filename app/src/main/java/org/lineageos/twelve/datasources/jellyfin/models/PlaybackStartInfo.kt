@@ -12,4 +12,5 @@ import kotlinx.serialization.Serializable
 data class PlaybackStartInfo(
     @SerialName("ItemId") val itemId: String,
     @SerialName("PositionTicks") val positionTicks: Long,
+    @SerialName("IsPaused") val isPaused: Boolean? = null,
 )
