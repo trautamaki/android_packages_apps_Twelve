@@ -41,19 +41,14 @@ import androidx.media3.session.SessionError
 import androidx.media3.session.SessionResult
 import androidx.preference.PreferenceManager
 import com.google.common.util.concurrent.Futures
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.lineageos.twelve.MainActivity
@@ -74,6 +69,7 @@ import org.lineageos.twelve.models.RepeatMode
 import org.lineageos.twelve.models.Result.Success
 import org.lineageos.twelve.ui.widgets.NowPlayingAppWidgetProvider
 import org.lineageos.twelve.utils.AudioPreloader
+import kotlin.time.Duration.Companion.seconds
 
 @OptIn(UnstableApi::class)
 class PlaybackService : MediaLibraryService() {
@@ -185,6 +181,8 @@ class PlaybackService : MediaLibraryService() {
     private lateinit var player: ExoPlayer
     private lateinit var mediaLibrarySession: MediaLibrarySession
 
+    private var progressJob: Job? = null
+
     private val mediaRepositoryTree by lazy {
         MediaRepositoryTree(
             applicationContext,
@@ -220,6 +218,25 @@ class PlaybackService : MediaLibraryService() {
                     outputConfigurationRepository.updateFormat(
                         this@PlaybackService.player.audioFormat
                     )
+                }
+            }
+
+            override fun onPositionDiscontinuity(
+                eventTime: AnalyticsListener.EventTime,
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int,
+            ) {
+                val mediaId = oldPosition.mediaItem?.mediaId ?: return
+
+                // A seek inside the same item isn't a stop, just a position update
+                if (mediaId == newPosition.mediaItem?.mediaId) {
+                    reportProgress()
+                    return
+                }
+
+                lifecycleScope.launch {
+                    mediaRepository.onAudioPlaybackStopped(mediaId.toUri(), oldPosition.positionMs)
                 }
             }
         }
@@ -586,6 +603,33 @@ class PlaybackService : MediaLibraryService() {
                 if (events.contains(Player.EVENT_AUDIO_SESSION_ID)) {
                     openAudioEffectSession()
                 }
+
+                if (events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
+                    when (player.isPlaying) {
+                        true -> startProgressReporting()
+                        false -> {
+                            stopProgressReporting()
+                            reportProgress()
+                        }
+                    }
+                }
+
+                if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
+                    && player.playbackState == Player.STATE_ENDED
+                ) {
+                    stopProgressReporting()
+
+                    val mediaId = player.currentMediaItem?.mediaId
+                    val positionMs = player.currentPosition
+                    lifecycleScope.launch {
+                        mediaId?.let {
+                            mediaRepository.onAudioPlaybackStopped(
+                                it.toUri(),
+                                positionMs
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -624,6 +668,15 @@ class PlaybackService : MediaLibraryService() {
     }
 
     override fun onDestroy() {
+        stopProgressReporting()
+
+        val positionMs = player.currentPosition
+        player.currentMediaItem?.mediaId?.let { mediaId ->
+            CoroutineScope(Dispatchers.IO).launch {
+                mediaRepository.onAudioPlaybackStopped(mediaId.toUri(), positionMs)
+            }
+        }
+
         closeAudioEffectSession()
 
         player.removeAnalyticsListener(analyticsListener)
@@ -669,7 +722,6 @@ class PlaybackService : MediaLibraryService() {
 
     private suspend fun getSuggestionsFromCurrentAudio(): List<MediaItem> {
         val mediaId = player.currentMediaItem?.mediaId ?: return emptyList()
-
         return mediaRepository.getSuggestionsFromAudio(mediaId.toUri())
             .firstOrNull { it is Success }?.let { requestStatus ->
                 val data = (requestStatus as Success).data
@@ -758,6 +810,37 @@ class PlaybackService : MediaLibraryService() {
         TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED
     }
 
+    private fun startProgressReporting() {
+        if (progressJob?.isActive == true) {
+            return
+        }
+
+        progressJob = lifecycleScope.launch {
+            while (isActive) {
+                delay(PROGRESS_REPORT_INTERVAL)
+                reportProgress()
+            }
+        }
+    }
+
+    private fun stopProgressReporting() {
+        progressJob?.cancel()
+        progressJob = null
+    }
+
+    private fun reportProgress() {
+        val mediaId = player.currentMediaItem?.mediaId ?: return
+        val isPaused = !player.isPlaying
+
+        lifecycleScope.launch {
+            mediaRepository.onAudioPlaybackProgress(
+                mediaId.toUri(),
+                player.currentPosition,
+                isPaused
+            )
+        }
+    }
+
     companion object {
         private val LOG_TAG = PlaybackService::class.simpleName!!
 
@@ -765,5 +848,7 @@ class PlaybackService : MediaLibraryService() {
          * Toggles play/pause. On play request and empty queue, resumption playlist will be loaded.
          */
         const val ACTION_TOGGLE_PLAY_PAUSE = "org.lineageos.twelve.ACTION_TOGGLE_PLAY_PAUSE"
+
+        private val PROGRESS_REPORT_INTERVAL = 10.seconds
     }
 }
