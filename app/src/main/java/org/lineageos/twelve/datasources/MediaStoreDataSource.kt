@@ -866,6 +866,17 @@ class MediaStoreDataSource(
         return Result.Success(Unit)
     }
 
+    override suspend fun onAudioPlaybackProgress(
+        audioUri: Uri,
+        positionMs: Long,
+        isPaused: Boolean
+    ): MediaRequestStatus<Unit> = Result.Success(Unit)
+
+    override suspend fun onAudioPlaybackStopped(
+        audioUri: Uri,
+        positionMs: Long
+    ): MediaRequestStatus<Unit> = Result.Success(Unit)
+
     override suspend fun setFavorite(
         audioUri: Uri,
         isFavorite: Boolean

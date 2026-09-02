@@ -360,6 +360,22 @@ class MediaRepository(
         }
 
     /**
+     * @see MediaDataSource.onAudioPlaybackProgress
+     */
+    suspend fun onAudioPlaybackProgress(audioUri: Uri, positionMs: Long, isPaused: Boolean) =
+        withMediaItemsDataSource(audioUri) {
+            onAudioPlaybackProgress(audioUri, positionMs, isPaused)
+        }
+
+    /**
+     * @see MediaDataSource.onAudioPlaybackStopped
+     */
+    suspend fun onAudioPlaybackStopped(audioUri: Uri, positionMs: Long) =
+        withMediaItemsDataSource(audioUri) {
+            onAudioPlaybackStopped(audioUri, positionMs)
+        }
+
+    /**
      * @see MediaDataSource.setFavorite
      */
     suspend fun setFavorite(audioUri: Uri, favorite: Boolean) =

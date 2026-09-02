@@ -363,6 +363,23 @@ class JellyfinClient(
         data = PlaybackStartInfo(itemId.toString(), positionTicks)
     ).execute(api).mapToError()
 
+    suspend fun broadcastPlaybackProgress(
+        itemId: UUID,
+        positionTicks: Long,
+        isPaused: Boolean = false,
+    ) = ApiRequest.post<PlaybackStartInfo, Unit>(
+        listOf("Sessions", "Playing", "Progress"),
+        data = PlaybackStartInfo(itemId.toString(), positionTicks, isPaused)
+    ).execute(api).mapToError()
+
+    suspend fun broadcastPlaybackStop(
+        itemId: UUID,
+        positionTicks: Long,
+    ) = ApiRequest.post<PlaybackStartInfo, Unit>(
+        listOf("Sessions", "Playing", "Stopped"),
+        data = PlaybackStartInfo(itemId.toString(), positionTicks)
+    ).execute(api).mapToError()
+
     suspend fun songInstantMix(id: UUID) = ApiRequest.get<QueryResult>(
         listOf(
             "Songs",

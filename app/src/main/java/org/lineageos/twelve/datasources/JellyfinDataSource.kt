@@ -662,6 +662,28 @@ class JellyfinDataSource(
         )
     }
 
+    override suspend fun onAudioPlaybackProgress(
+        audioUri: Uri,
+        positionMs: Long,
+        isPaused: Boolean,
+    ) = providersManager.doWithInstanceOf(audioUri) {
+        client.broadcastPlaybackProgress(
+            itemId = UUID.fromString(audioUri.lastPathSegment!!),
+            positionTicks = positionMs * 10_000,
+            isPaused = isPaused,
+        )
+    }
+
+    override suspend fun onAudioPlaybackStopped(
+        audioUri: Uri,
+        positionMs: Long,
+    ) = providersManager.doWithInstanceOf(audioUri) {
+        client.broadcastPlaybackStop(
+            itemId = UUID.fromString(audioUri.lastPathSegment!!),
+            positionTicks = positionMs * 10_000,
+        )
+    }
+
     override fun getSuggestionsFromAudio(
         providerIdentifier: ProviderIdentifier,
         audioUri: Uri,

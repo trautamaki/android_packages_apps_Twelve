@@ -234,6 +234,27 @@ interface MediaDataSource {
     suspend fun onAudioPlayed(audioUri: Uri, positionMs: Long): MediaRequestStatus<Unit>
 
     /**
+     * Notify the source about the audio progress.
+     * @param audioUri The URI of the audio
+     * @param positionMs The position of the audio in milliseconds
+     * @param isPaused Is the playback paused
+     * @return [Result.Success] if success, [Result.Failure] with an error otherwise
+     */
+    suspend fun onAudioPlaybackProgress(
+        audioUri: Uri,
+        positionMs: Long,
+        isPaused: Boolean
+    ): MediaRequestStatus<Unit>
+
+    /**
+     * Notify the source about an audio item being stopped.
+     * @param audioUri The URI of the audio
+     * @param positionMs The position of the audio in milliseconds
+     * @return [Result.Success] if success, [Result.Failure] with an error otherwise
+     */
+    suspend fun onAudioPlaybackStopped(audioUri: Uri, positionMs: Long): MediaRequestStatus<Unit>
+
+    /**
      * Set the favorite status of an audio.
      * @param audioUri The URI of the audio
      * @param isFavorite The new favorite status
