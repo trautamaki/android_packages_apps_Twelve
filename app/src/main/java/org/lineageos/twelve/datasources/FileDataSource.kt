@@ -84,6 +84,13 @@ class FileDataSource(
         sortingRule: SortingRule,
     ) = flowOf(Result.Failure(Error.NOT_IMPLEMENTED))
 
+    override fun artistTracks(
+        providerIdentifier: ProviderIdentifier,
+        artistUri: Uri
+    ) = flowOf(
+        Result.Failure(Error.NOT_IMPLEMENTED)
+    )
+
     override fun genres(
         providerIdentifier: ProviderIdentifier,
         sortingRule: SortingRule,
