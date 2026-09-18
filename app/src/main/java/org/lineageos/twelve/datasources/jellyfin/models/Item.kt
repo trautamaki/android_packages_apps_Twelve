@@ -32,4 +32,5 @@ data class Item(
     @SerialName("Type") val type: ItemType? = null,
     @SerialName("UserData") val userData: UserData? = null,
     @SerialName("ProviderIds") val providerIds: Map<String, String>? = null,
+    @SerialName("PlaylistItemId") val playlistItemId: String? = null,
 )
